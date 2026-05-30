@@ -238,3 +238,5 @@ export function renameTask(taskName: string, newTaskName: string) {
 	});
 	localStorage.setItem("tasks", JSON.stringify(tasksLS));
 }
+
+
