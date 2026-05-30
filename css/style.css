@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "./typography.css";
+
+body {
+	font-family: "Josefin Sans", sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 600;
+	font-style: normal;
+	background: url(./john-towner-JgOeRuGD_Y4-unsplash.jpg) no-repeat center center/cover;
+}
+/* 
+#errorMsg {
+	animation: fadeIn 1.5s ease-in-out 1;
+} */
+
