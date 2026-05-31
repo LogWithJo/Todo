@@ -1,6 +1,7 @@
 import { returnRemovedTask } from "./data.js";
 import { removeRemovedTask, renderTasksSS, searchDelTasks } from "./deletedPageData.js";
 import Mission, { checkDeletedTasks, removeDUI } from "./deletedPageUi.js";
+import { updateGridNumbers } from "./dom.js";
 import { Group, RemoveType } from "./types.js";
 import { checkTasks } from "./ui.js";
 const openDeletedTasksButton = document.getElementById("openDeletedTasksButton");
@@ -69,11 +70,13 @@ function deletedTasksContainerEvent(e) {
         returnRemovedTask(group, RemoveType.return, taskName);
         checkTasks();
         checkDeletedTasks();
+        updateGridNumbers();
         element.remove();
     }
     else if (deleteBtn) {
         removeRemovedTask(taskName, group);
         checkDeletedTasks();
+        updateGridNumbers();
         element.remove();
     }
 }
@@ -95,6 +98,7 @@ function restoreAllDeletedTasksButtonEvent() {
     deletedTasksContainer.innerHTML = "";
     checkDeletedTasks();
     checkTasks();
+    updateGridNumbers();
 }
 function deleteAllDeletedTasksButtonEvent() {
     sessionStorage.setItem("all", "[]");
@@ -104,6 +108,7 @@ function deleteAllDeletedTasksButtonEvent() {
         return;
     deletedTasksContainer.innerHTML = "";
     checkDeletedTasks();
+    updateGridNumbers();
 }
 function searchDeletedTasksInputEvent() {
     searchDelTasks(searchDeletedTasksInput.value);
