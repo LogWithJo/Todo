@@ -89,52 +89,27 @@ taskListContainer === null || taskListContainer === void 0 ? void 0 : taskListCo
         stateTaskLocalStorage(taskName, State.uncompleted);
     }
     else if (target.id === Choose.edit) {
-        const taskItem = target.closest("[name]");
-        if (!taskItem)
-            return;
-        const currentTaskName = taskItem.getAttribute("name") || "";
-        const titleElement = taskItem.querySelector("#taskTitle");
-        if (!titleElement || taskItem.querySelector("textarea"))
-            return;
-        const textarea = document.createElement("textarea");
-        textarea.value = currentTaskName;
-        textarea.className = titleElement.className;
-        textarea.id = "taskTitle";
-        textarea.setAttribute("textarea", "true");
-        textarea.rows = 1;
-        titleElement.replaceWith(textarea);
-        textarea.focus();
-        textarea.setSelectionRange(currentTaskName.length, currentTaskName.length);
-        const commitEdit = (e) => {
-            if (e.key !== "Enter")
-                return;
-            const newTaskName = textarea.value.trim();
-            if (newTaskName.length < 1) {
-                showErrors(Show.empty);
-                return;
+        // ui
+        const parent = target.closest("[name]");
+        changeTag(parent);
+        addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                // UI
+                const textarea = document.querySelector("[textarea]");
+                const newTaskName = textarea.value;
+                parent.remove();
+                // addTaskUI(newTaskName, state, date)
+                textarea.removeAttribute("[textarea]");
+                // console.log(newTaskName)
+                // Data
+                taskListContainer.innerHTML = "";
+                renameTask(taskName, newTaskName);
+                const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
+                console.log(taskLS);
+                renderTasks(taskLS);
             }
-            if (newTaskName !== currentTaskName && auth(newTaskName)) {
-                showErrors(Show.repeated);
-                return;
-            }
-            renameTask(currentTaskName, newTaskName);
-            const updatedTitle = document.createElement("div");
-            updatedTitle.className = titleElement.className;
-            updatedTitle.id = "taskTitle";
-            updatedTitle.textContent = newTaskName;
-            if (state === State.completed) {
-                updatedTitle.style.textDecoration = "line-through";
-            }
-            textarea.replaceWith(updatedTitle);
-            taskItem.setAttribute("name", newTaskName);
-            taskItem.querySelectorAll("[data-src]").forEach((element) => {
-                if (element instanceof HTMLElement) {
-                    element.setAttribute("data-src", newTaskName);
-                }
-            });
-            textarea.removeEventListener("keydown", commitEdit);
-        };
-        textarea.addEventListener("keydown", commitEdit);
+        });
+        // data
     }
 });
 searchTaskInput.addEventListener("input", () => {

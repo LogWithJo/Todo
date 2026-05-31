@@ -29,6 +29,21 @@ const finishedCount = document.getElementById("finishedCount") as HTMLElement;
 const pendingCount = document.getElementById("pendingCount") as HTMLElement;
 const deletedCount = document.getElementById("deletedCount") as HTMLElement;
 
+export function updateGridNumbers() {
+	if (!finishedCount || !pendingCount || !deletedCount) return;
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
+	const finishedTasks = tasks.filter((task) => task[1] === State.completed).length;
+	const pendingTasks = tasks.filter((task) => task[1] === State.uncompleted).length;
+	const deletedTasks =
+		JSON.parse(sessionStorage.getItem("all") || "[]").length +
+		JSON.parse(sessionStorage.getItem("completed") || "[]").length +
+		JSON.parse(sessionStorage.getItem("tasks") || "[]").length;
+
+	finishedCount.textContent = finishedTasks.toString();
+	pendingCount.textContent = pendingTasks.toString();
+	deletedCount.textContent = deletedTasks.toString();
+}
+
 export function initEventListeners() {
 	newTaskInput?.addEventListener("keydown", (e: KeyboardEvent) => {
 		newTaskInputEvent(e);
@@ -41,6 +56,7 @@ export function initEventListeners() {
 	deleteAllButton.addEventListener("click", deleteAllButtonEvent);
 	deleteCompletedButton.addEventListener("click", deleteCompletedButtonEvent);
 	undoButton.addEventListener("click", undoButtonEvent);
+	updateGridNumbers();
 }
 
 function newTaskInputEvent(e: KeyboardEvent) {
@@ -59,6 +75,7 @@ function newTaskInputEvent(e: KeyboardEvent) {
 		addTaskUI(taskName, State.uncompleted, dueDateInput.value);
 		addTaskToLocalStorage(taskName, dueDateInput.value);
 		checkTasks();
+		updateGridNumbers();
 		dueDateInput.value = "";
 	}
 }
@@ -79,6 +96,7 @@ function addTaskButtonEvent() {
 		}
 		addTaskUI(taskName, State.uncompleted, dueDateInput.value);
 		checkTasks();
+		updateGridNumbers();
 		dueDateInput.value = "";
 	}
 }
@@ -87,15 +105,10 @@ function taskListContainerEvent(e: MouseEvent) {
 	const target = e.target as HTMLElement;
 	const taskName: string = target.getAttribute("data-src") || "";
 	const date: string = target.getAttribute("data-date") || "";
-	const state: State =
-		target.getAttribute("state") === State.uncompleted
-			? State.uncompleted
-			: target.getAttribute("state") === State.completed
-				? State.completed
-				: State.uncompleted;
 	if (target.id === Choose.check) {
 		checkedUI(taskName);
 		stateTaskLocalStorage(taskName, State.completed);
+		updateGridNumbers();
 	} else if (target.id === Choose.remove) {
 		removeUI(taskName);
 		saveRemovedTask(Group.tasks, taskName);
@@ -104,60 +117,32 @@ function taskListContainerEvent(e: MouseEvent) {
 		undoButton.setAttribute("data-task-name", taskName);
 		showUndoBtn();
 		checkTasks();
+		updateGridNumbers();
 	} else if (target.id === Choose.unachieve) {
-		// ui
 		removeUI(taskName);
 		addTaskUI(taskName, State.uncompleted, date);
-		// data
 		stateTaskLocalStorage(taskName, State.uncompleted);
+		updateGridNumbers();
 	} else if (target.id === Choose.edit) {
-		const taskItem = target.closest("[name]") as HTMLElement;
-		if (!taskItem) return;
-		const currentTaskName = taskItem.getAttribute("name") || "";
-		const titleElement = taskItem.querySelector("#taskTitle") as HTMLElement;
-		if (!titleElement || taskItem.querySelector("textarea")) return;
-
-		const textarea = document.createElement("textarea");
-		textarea.value = currentTaskName;
-		textarea.className = titleElement.className;
-		textarea.id = "taskTitle";
-		textarea.setAttribute("textarea", "true");
-		textarea.rows = 1;
-		titleElement.replaceWith(textarea);
-		textarea.focus();
-		textarea.setSelectionRange(currentTaskName.length, currentTaskName.length);
-
-		const commitEdit = (e: KeyboardEvent) => {
-			if (e.key !== "Enter") return;
+		const parent = target.closest("[name]") as HTMLElement;
+		if (!parent) return;
+		changeTag(parent);
+		const textarea = parent.querySelector("textarea[textarea]") as HTMLTextAreaElement | null;
+		textarea?.focus();
+		const onEditKeyDown = (e: KeyboardEvent) => {
+			if (e.key !== "Enter" || !textarea) return;
 			const newTaskName = textarea.value.trim();
-			if (newTaskName.length < 1) {
-				showErrors(Show.empty);
-				return;
+			if (newTaskName.length < 1) return;
+			textarea.removeEventListener("keydown", onEditKeyDown);
+			if (newTaskName !== taskName) {
+				renameTask(taskName, newTaskName);
 			}
-			if (newTaskName !== currentTaskName && auth(newTaskName)) {
-				showErrors(Show.repeated);
-				return;
-			}
-
-			renameTask(currentTaskName, newTaskName);
-			const updatedTitle = document.createElement("div");
-			updatedTitle.className = titleElement.className;
-			updatedTitle.id = "taskTitle";
-			updatedTitle.textContent = newTaskName;
-			if (state === State.completed) {
-				updatedTitle.style.textDecoration = "line-through";
-			}
-			textarea.replaceWith(updatedTitle);
-			taskItem.setAttribute("name", newTaskName);
-			taskItem.querySelectorAll("[data-src]").forEach((element) => {
-				if (element instanceof HTMLElement) {
-					element.setAttribute("data-src", newTaskName);
-				}
-			});
-			textarea.removeEventListener("keydown", commitEdit);
+			taskListContainer.innerHTML = "";
+			const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
+			renderTasks(taskLS);
+			updateGridNumbers();
 		};
-
-		textarea.addEventListener("keydown", commitEdit);
+		textarea?.addEventListener("keydown", onEditKeyDown);
 	}
 }
 
@@ -174,6 +159,7 @@ function deleteAllButtonEvent() {
 	showUndoBtn();
 	undoButton.setAttribute("data-task-state", Group.all);
 	checkTasks();
+	updateGridNumbers();
 }
 
 function deleteCompletedButtonEvent() {
@@ -185,6 +171,7 @@ function deleteCompletedButtonEvent() {
 	showUndoBtn();
 	undoButton.setAttribute("data-task-state", Group.completed);
 	checkTasks();
+	updateGridNumbers();
 }
 
 function undoButtonEvent() {
@@ -194,6 +181,7 @@ function undoButtonEvent() {
 	if (!taskState) return;
 	returnRemovedTask(taskState as Group, RemoveType.undo, (taskName as string) || undefined);
 	checkTasks();
+	updateGridNumbers();
 	// const removedTask: [string, State][] = JSON.parse(undoButton.getAttribute("data-src") || "")
 	// const inner = removedTask[0]
 	// returnRemovedTask(removedTask)

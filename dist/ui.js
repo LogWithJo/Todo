@@ -150,7 +150,7 @@ export function addTaskUI(taskName, state, date) {
             "flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
         nameDiv.className =
             "px-2 font-bold capitalize flex-1 flex justify-center items-center";
-        nameDiv.id = "taskTitle";
+        nameDiv.id = "title";
         nameDiv.textContent = taskName;
         iconsDiv.className = "flex gap-3 items-center justify-center";
         if (state === State.completed) {

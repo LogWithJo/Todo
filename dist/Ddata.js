@@ -1,10 +1,10 @@
-import { deletedTasksContainer, Group } from "./Ddom.js";
+import { deletedTasksList, Group } from "./Ddom.js";
 import { checkDeletedTasks, createDeletedTaskUI } from "./Dui.js";
 // import {} from "./dom.js";
 // import {} from "./ui.js";
 export function renderTasksSS() {
-    if (deletedTasksContainer) {
-        deletedTasksContainer.innerHTML = "";
+    if (deletedTasksList) {
+        deletedTasksList.innerHTML = "";
     }
     const all = JSON.parse(sessionStorage.getItem("all") || "[]");
     const completed = JSON.parse(sessionStorage.getItem("completed") || "[]");
@@ -28,9 +28,9 @@ export function searchDelTasks(SearchVal) {
     const all = JSON.parse(sessionStorage.getItem("all") || "[]");
     const completed = JSON.parse(sessionStorage.getItem("completed") || "[]");
     const tasks = JSON.parse(sessionStorage.getItem("tasks") || "[]");
-    if (!deletedTasksContainer)
+    if (!deletedTasksList)
         return;
-    deletedTasksContainer.innerHTML = "";
+    deletedTasksList.innerHTML = "";
     const tasksArray = [];
     all.forEach((task) => {
         if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {

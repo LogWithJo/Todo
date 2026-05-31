@@ -1,7 +1,7 @@
 import { showIcon } from "./api.js";
 import { checkTasksLS, getDate, reorderTasksLocalStorage } from "./data.js";
 import { addTaskButton, emptyTasksMessage, errorMessage, newTaskInput, taskListContainer, undoButton } from "./dom.js";
-import { Choose, RemoveType, Show, State } from "./types.js";
+import { Choose, Show, State } from "./types.js";
 
 let dragSource: HTMLElement | null = null;
 let taskListContainerContainerInitialized = false;
@@ -255,7 +255,7 @@ export function checkTasks(state?: boolean) {
 	emptyTasksMessage.style.display = show ? "block" : "none";
 }
 
-export function changeTag(elements: HTMLElement, newTaskName?: string) {
+export function changeTag(elements: HTMLElement) {
 	const element = elements.querySelector(`#taskTitle`);
 
 	if (!(element instanceof HTMLElement)) return;
@@ -266,8 +266,8 @@ export function changeTag(elements: HTMLElement, newTaskName?: string) {
 	for (const attr of element.attributes) {
 		newElement.setAttribute(attr.name, attr.value);
 	}
-	// newElement may be a HTMLTextAreaElement when creating a textarea; cast to access rows
 	(newElement as HTMLTextAreaElement).rows = 1;
+	(newElement as HTMLTextAreaElement).value = element.textContent || "";
 	newElement.setAttribute("textarea", "true");
 
 	element.replaceWith(newElement);

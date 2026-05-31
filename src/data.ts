@@ -1,5 +1,5 @@
-import { taskListContainer } from "./dom.js";
-import { type alone, type array, Choose, Group, RemoveType, Show, State } from "./types.js";
+import { taskListContainer, updateGridNumbers } from "./dom.js";
+import { type alone, type array, Group, RemoveType, State } from "./types.js";
 import { addTaskUI, checkTasks, renderTasks } from "./ui.js";
 
 export function addTaskToLocalStorage(taskName: string, date: string) {
@@ -100,15 +100,14 @@ window.addEventListener("load", () => {
 		addTaskUI(task[0], task[1], task[2]);
 	});
 	checkTasks();
+	updateGridNumbers();
 });
 
 // Search
 
 export function searchTasks(SearchVal: string) {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
-	if (taskListContainer) {
-		taskListContainer.innerHTML = "";
-	}
+	taskListContainer.innerHTML = "";
 	const tasksArray: Array<[string, State, string]> = [];
 	tasks.forEach((task) => {
 		if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {

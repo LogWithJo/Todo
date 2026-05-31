@@ -1,6 +1,6 @@
 import type { State } from "./data.js";
 import { checkDeletedTasksLS } from "./deletedPageData.js";
-import { deletedTasksContainer, type Group, noDeletedTasksMessage } from "./deletedPageDom.js";
+import { deletedTasksContainer, type Group, noDeletedTasksUI } from "./deletedPageDom.js";
 
 enum Mission {
 	restore = "restore",
@@ -65,9 +65,6 @@ export function createDeletedTaskUI(taskName: string, group: Group, state: State
 	card.append(topRow, btnRow);
 
 	deletedTasksContainer?.append(card);
-}
-
-export function removeDUI(taskName: string) {
 	const parent = document.querySelector(`[name="${taskName}"]`);
 	if (parent instanceof HTMLElement) {
 		parent.remove();
@@ -75,7 +72,7 @@ export function removeDUI(taskName: string) {
 }
 
 export function checkDeletedTasks(state?: boolean) {
-	if (!noDeletedTasksMessage) return;
+	if (!noDeletedTasksUI) return;
 	const show = state !== undefined ? state : checkDeletedTasksLS();
-	noDeletedTasksMessage.style.display = show ? "block" : "none";
+	noDeletedTasksUI.style.display = show ? "block" : "none";
 }

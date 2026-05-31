@@ -1,35 +1,19 @@
 import { returnRemovedTask } from "./data.js";
-import {
-	removeRemovedTask,
-	renderTasksSS,
-	searchDelTasks,
-} from "./deletedPageData.js";
+import { removeRemovedTask, renderTasksSS, searchDelTasks } from "./deletedPageData.js";
 import Mission, { checkDeletedTasks, removeDUI } from "./deletedPageUi.js";
-import { initEventListeners } from "./dom.js";
-import { RemoveType, type State, Group } from "./types.js";
+import { Group, RemoveType, type State } from "./types.js";
 import { checkTasks } from "./ui.js";
 
-const openDeletedTasksButton = document.getElementById(
-	"openDeletedTasksButton",
-) as HTMLButtonElement;
+const openDeletedTasksButton = document.getElementById("openDeletedTasksButton") as HTMLButtonElement;
 const deletedTasksPopup = document.getElementById("deletedTasksPopup") as HTMLDivElement;
-const closeDeletedPopupButton = document.getElementById(
-	"closeDeletedPopupButton",
-) as HTMLButtonElement;
+const closeDeletedPopupButton = document.getElementById("closeDeletedPopupButton") as HTMLButtonElement;
 // const deletedPopupBody = document.getElementById("deletedPopupBody") as HTMLDivElement;
 export const deletedTasksContainer = document.getElementById("deletedTasksContainer");
-export const restoreAllDeletedTasksButton = document.getElementById(
-	"restoreAllDeletedTasksButton",
-) as HTMLButtonElement;
-export const deleteAllDeletedTasksButton = document.getElementById(
-	"deleteAllDeletedTasksButton",
-) as HTMLButtonElement;
-export const searchDeletedTasksInput = document.getElementById(
-	"searchDeletedTasksInput",
-) as HTMLButtonElement;
-export const noDeletedTasksMessage = document.getElementById(
-	"noDeletedTasksMessage",
-) as HTMLElement;
+export const deletedTasksList = deletedTasksContainer;
+export const restoreAllDeletedTasksButton = document.getElementById("restoreAllDeletedTasksButton") as HTMLButtonElement;
+export const deleteAllDeletedTasksButton = document.getElementById("deleteAllDeletedTasksButton") as HTMLButtonElement;
+export const searchDeletedTasksInput = document.getElementById("searchDeletedTasksInput") as HTMLInputElement;
+export const noDeletedTasksMessage = document.getElementById("noDeletedTasksMessage") as HTMLElement;
 
 function initDeletedPageEventListeners() {
 	closeDeletedPopupButton.addEventListener("click", closeDeletedPopupButtonEvent);
@@ -41,7 +25,7 @@ function initDeletedPageEventListeners() {
 	});
 	restoreAllDeletedTasksButton.addEventListener("click", restoreAllDeletedTasksButtonEvent);
 	deleteAllDeletedTasksButton.addEventListener("click", deleteAllDeletedTasksButtonEvent);
-	searchDeletedTasksInput.addEventListener("click", searchDeletedTasksInputEvent);
+	searchDeletedTasksInput.addEventListener("input", searchDeletedTasksInputEvent);
 }
 
 openDeletedTasksButton.addEventListener("click", () => {
@@ -109,15 +93,9 @@ function deletedTasksContainerEvent(e: MouseEvent) {
 }
 
 function restoreAllDeletedTasksButtonEvent() {
-	const tasksSS1: [string, State][] = JSON.parse(
-		sessionStorage.getItem("all") || "[]",
-	);
-	const tasksSS2: [string, State][] = JSON.parse(
-		sessionStorage.getItem("completed") || "[]",
-	);
-	const tasksSS3: [string, State][] = JSON.parse(
-		sessionStorage.getItem("tasks") || "[]",
-	);
+	const tasksSS1: [string, State][] = JSON.parse(sessionStorage.getItem("all") || "[]");
+	const tasksSS2: [string, State][] = JSON.parse(sessionStorage.getItem("completed") || "[]");
+	const tasksSS3: [string, State][] = JSON.parse(sessionStorage.getItem("tasks") || "[]");
 	tasksSS1.forEach((task) => {
 		returnRemovedTask(Group.all, RemoveType.return, task[0]);
 	});
