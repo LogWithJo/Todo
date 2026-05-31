@@ -59,7 +59,7 @@ export function initEventListeners() {
 	updateGridNumbers();
 }
 
-function newTaskInputEvent(e: KeyboardEvent) {
+async function newTaskInputEvent(e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		addTaskButton?.setAttribute("disabled", "true");
 		const taskName: string = newTaskInput.value;
@@ -73,21 +73,20 @@ function newTaskInputEvent(e: KeyboardEvent) {
 			return;
 		}
 		addTaskUI(taskName, State.uncompleted, dueDateInput.value);
-		addTaskToLocalStorage(taskName, dueDateInput.value);
+		await addTaskToLocalStorage(taskName, dueDateInput.value);
 		checkTasks();
 		updateGridNumbers();
 		dueDateInput.value = "";
 	}
 }
 
-function addTaskButtonEvent() {
+async function addTaskButtonEvent() {
 	newTaskInput?.setAttribute("disabled", "true");
 	const taskName: string = newTaskInput?.value ?? "";
 	if (newTaskInput instanceof HTMLInputElement) {
 		newTaskInput.value = "";
 		if (taskName.length < 1) {
 			showErrors(Show.empty);
-			addTaskToLocalStorage(taskName, dueDateInput.value);
 			return;
 		}
 		if (auth(taskName)) {
@@ -95,25 +94,25 @@ function addTaskButtonEvent() {
 			return;
 		}
 		addTaskUI(taskName, State.uncompleted, dueDateInput.value);
-		addTaskToLocalStorage(taskName, dueDateInput.value);
+		await addTaskToLocalStorage(taskName, dueDateInput.value);
 		checkTasks();
 		updateGridNumbers();
 		dueDateInput.value = "";
 	}
 }
 
-function taskListContainerEvent(e: MouseEvent) {
+async function taskListContainerEvent(e: MouseEvent) {
 	const target = e.target as HTMLElement;
 	const taskName: string = target.getAttribute("data-src") || "";
 	const date: string = target.getAttribute("data-date") || "";
 	if (target.id === Choose.check) {
 		checkedUI(taskName);
-		stateTaskLocalStorage(taskName, State.completed);
+		await stateTaskLocalStorage(taskName, State.completed);
 		updateGridNumbers();
 	} else if (target.id === Choose.remove) {
 		removeUI(taskName);
 		saveRemovedTask(Group.tasks, taskName);
-		removeTaskLocalStorage(taskName);
+		await removeTaskLocalStorage(taskName);
 		undoButton.setAttribute("data-task-state", Group.tasks);
 		undoButton.setAttribute("data-task-name", taskName);
 		showUndoBtn();
@@ -122,7 +121,7 @@ function taskListContainerEvent(e: MouseEvent) {
 	} else if (target.id === Choose.unachieve) {
 		removeUI(taskName);
 		addTaskUI(taskName, State.uncompleted, date);
-		stateTaskLocalStorage(taskName, State.uncompleted);
+		await stateTaskLocalStorage(taskName, State.uncompleted);
 		updateGridNumbers();
 	} else if (target.id === Choose.edit) {
 		const parent = target.closest("[name]") as HTMLElement;
@@ -130,13 +129,13 @@ function taskListContainerEvent(e: MouseEvent) {
 		changeTag(parent);
 		const textarea = parent.querySelector("textarea[textarea]") as HTMLTextAreaElement | null;
 		textarea?.focus();
-		const onEditKeyDown = (e: KeyboardEvent) => {
+		const onEditKeyDown = async (e: KeyboardEvent) => {
 			if (e.key !== "Enter" || !textarea) return;
 			const newTaskName = textarea.value.trim();
 			if (newTaskName.length < 1) return;
 			textarea.removeEventListener("keydown", onEditKeyDown);
 			if (newTaskName !== taskName) {
-				renameTask(taskName, newTaskName);
+				await renameTask(taskName, newTaskName);
 			}
 			taskListContainer.innerHTML = "";
 			const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
@@ -151,36 +150,36 @@ function searchTaskInputEvent() {
 	searchTasks(searchTaskInput.value);
 }
 
-function deleteAllButtonEvent() {
+async function deleteAllButtonEvent() {
 	// UI
 	taskListContainer.innerHTML = "";
 	// Data
 	saveRemovedTask(Group.all);
-	removeAllTasks();
+	await removeAllTasks();
 	showUndoBtn();
 	undoButton.setAttribute("data-task-state", Group.all);
 	checkTasks();
 	updateGridNumbers();
 }
 
-function deleteCompletedButtonEvent() {
+async function deleteCompletedButtonEvent() {
 	// UI
 	taskListContainer.innerHTML = "";
 	// Data
 	saveRemovedTask(Group.completed);
-	removeAllCompletedTasks();
+	await removeAllCompletedTasks();
 	showUndoBtn();
 	undoButton.setAttribute("data-task-state", Group.completed);
 	checkTasks();
 	updateGridNumbers();
 }
 
-function undoButtonEvent() {
+async function undoButtonEvent() {
 	undoButton.classList.add("hidden");
 	const taskState = undoButton.getAttribute("data-task-state");
 	const taskName = undoButton.getAttribute("data-task-name");
 	if (!taskState) return;
-	returnRemovedTask(taskState as Group, RemoveType.undo, (taskName as string) || undefined);
+	await returnRemovedTask(taskState as Group, RemoveType.undo, (taskName as string) || undefined);
 	checkTasks();
 	updateGridNumbers();
 	// const removedTask: [string, State][] = JSON.parse(undoButton.getAttribute("data-src") || "")

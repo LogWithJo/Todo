@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 export function getIcon(task) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         const res = yield fetch(`https://api.iconify.design/search?query=${encodeURIComponent(task)}`);
         const data = yield res.json();
         return ((_a = data.icons) === null || _a === void 0 ? void 0 : _a[0]) || undefined;

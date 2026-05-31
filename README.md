@@ -20,7 +20,15 @@ A simple browser-based to-do list application built with TypeScript and vanilla 
 
 ## Running the app
 
-Open `index.html` in a browser or use a local static server. The project uses TypeScript source files under `src/` and outputs compiled code to `dist/`.
+The app now includes a Node backend for task persistence.
+
+- Install dependencies: `npm install`
+- Build TypeScript: `npm run build`
+- Start the backend server: `npm start`
+
+Open `http://localhost:3000` in your browser to use the app.
+
+The project uses TypeScript source files under `src/` and outputs compiled code to `dist/`.
 
 ## Notes
 

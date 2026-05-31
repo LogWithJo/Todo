@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { addTaskToLocalStorage, auth, removeAllCompletedTasks, removeAllTasks, removeTaskLocalStorage, renameTask, returnRemovedTask, saveRemovedTask, searchTasks, stateTaskLocalStorage, } from "./data.js";
 import { Choose, Group, RemoveType, Show, State } from "./types.js";
 import { addTaskUI, changeTag, checkedUI, checkTasks, removeUI, renderTasks, showErrors, showUndoBtn } from "./ui.js";
@@ -43,137 +52,148 @@ export function initEventListeners() {
     updateGridNumbers();
 }
 function newTaskInputEvent(e) {
-    if (e.key === "Enter") {
-        addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.setAttribute("disabled", "true");
-        const taskName = newTaskInput.value;
-        newTaskInput.value = "";
-        if (taskName.length < 1) {
-            showErrors(Show.empty);
-            return;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (e.key === "Enter") {
+            addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.setAttribute("disabled", "true");
+            const taskName = newTaskInput.value;
+            newTaskInput.value = "";
+            if (taskName.length < 1) {
+                showErrors(Show.empty);
+                return;
+            }
+            if (auth(taskName)) {
+                showErrors(Show.repeated);
+                return;
+            }
+            addTaskUI(taskName, State.uncompleted, dueDateInput.value);
+            yield addTaskToLocalStorage(taskName, dueDateInput.value);
+            checkTasks();
+            updateGridNumbers();
+            dueDateInput.value = "";
         }
-        if (auth(taskName)) {
-            showErrors(Show.repeated);
-            return;
-        }
-        addTaskUI(taskName, State.uncompleted, dueDateInput.value);
-        addTaskToLocalStorage(taskName, dueDateInput.value);
-        checkTasks();
-        updateGridNumbers();
-        dueDateInput.value = "";
-    }
+    });
 }
 function addTaskButtonEvent() {
-    var _a;
-    newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.setAttribute("disabled", "true");
-    const taskName = (_a = newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.value) !== null && _a !== void 0 ? _a : "";
-    if (newTaskInput instanceof HTMLInputElement) {
-        newTaskInput.value = "";
-        if (taskName.length < 1) {
-            showErrors(Show.empty);
-            addTaskToLocalStorage(taskName, dueDateInput.value);
-            return;
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.setAttribute("disabled", "true");
+        const taskName = (_a = newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.value) !== null && _a !== void 0 ? _a : "";
+        if (newTaskInput instanceof HTMLInputElement) {
+            newTaskInput.value = "";
+            if (taskName.length < 1) {
+                showErrors(Show.empty);
+                return;
+            }
+            if (auth(taskName)) {
+                showErrors(Show.repeated);
+                return;
+            }
+            addTaskUI(taskName, State.uncompleted, dueDateInput.value);
+            yield addTaskToLocalStorage(taskName, dueDateInput.value);
+            checkTasks();
+            updateGridNumbers();
+            dueDateInput.value = "";
         }
-        if (auth(taskName)) {
-            showErrors(Show.repeated);
-            return;
-        }
-        addTaskUI(taskName, State.uncompleted, dueDateInput.value);
-        addTaskToLocalStorage(taskName, dueDateInput.value);
-        checkTasks();
-        updateGridNumbers();
-        dueDateInput.value = "";
-    }
+    });
 }
 function taskListContainerEvent(e) {
-    const target = e.target;
-    const taskName = target.getAttribute("data-src") || "";
-    const date = target.getAttribute("data-date") || "";
-    if (target.id === Choose.check) {
-        checkedUI(taskName);
-        stateTaskLocalStorage(taskName, State.completed);
-        updateGridNumbers();
-    }
-    else if (target.id === Choose.remove) {
-        removeUI(taskName);
-        saveRemovedTask(Group.tasks, taskName);
-        removeTaskLocalStorage(taskName);
-        undoButton.setAttribute("data-task-state", Group.tasks);
-        undoButton.setAttribute("data-task-name", taskName);
-        showUndoBtn();
-        checkTasks();
-        updateGridNumbers();
-    }
-    else if (target.id === Choose.unachieve) {
-        removeUI(taskName);
-        addTaskUI(taskName, State.uncompleted, date);
-        stateTaskLocalStorage(taskName, State.uncompleted);
-        updateGridNumbers();
-    }
-    else if (target.id === Choose.edit) {
-        const parent = target.closest("[name]");
-        if (!parent)
-            return;
-        changeTag(parent);
-        const textarea = parent.querySelector("textarea[textarea]");
-        textarea === null || textarea === void 0 ? void 0 : textarea.focus();
-        const onEditKeyDown = (e) => {
-            if (e.key !== "Enter" || !textarea)
-                return;
-            const newTaskName = textarea.value.trim();
-            if (newTaskName.length < 1)
-                return;
-            textarea.removeEventListener("keydown", onEditKeyDown);
-            if (newTaskName !== taskName) {
-                renameTask(taskName, newTaskName);
-            }
-            taskListContainer.innerHTML = "";
-            const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
-            renderTasks(taskLS);
+    return __awaiter(this, void 0, void 0, function* () {
+        const target = e.target;
+        const taskName = target.getAttribute("data-src") || "";
+        const date = target.getAttribute("data-date") || "";
+        if (target.id === Choose.check) {
+            checkedUI(taskName);
+            yield stateTaskLocalStorage(taskName, State.completed);
             updateGridNumbers();
-        };
-        textarea === null || textarea === void 0 ? void 0 : textarea.addEventListener("keydown", onEditKeyDown);
-    }
+        }
+        else if (target.id === Choose.remove) {
+            removeUI(taskName);
+            saveRemovedTask(Group.tasks, taskName);
+            yield removeTaskLocalStorage(taskName);
+            undoButton.setAttribute("data-task-state", Group.tasks);
+            undoButton.setAttribute("data-task-name", taskName);
+            showUndoBtn();
+            checkTasks();
+            updateGridNumbers();
+        }
+        else if (target.id === Choose.unachieve) {
+            removeUI(taskName);
+            addTaskUI(taskName, State.uncompleted, date);
+            yield stateTaskLocalStorage(taskName, State.uncompleted);
+            updateGridNumbers();
+        }
+        else if (target.id === Choose.edit) {
+            const parent = target.closest("[name]");
+            if (!parent)
+                return;
+            changeTag(parent);
+            const textarea = parent.querySelector("textarea[textarea]");
+            textarea === null || textarea === void 0 ? void 0 : textarea.focus();
+            const onEditKeyDown = (e) => __awaiter(this, void 0, void 0, function* () {
+                if (e.key !== "Enter" || !textarea)
+                    return;
+                const newTaskName = textarea.value.trim();
+                if (newTaskName.length < 1)
+                    return;
+                textarea.removeEventListener("keydown", onEditKeyDown);
+                if (newTaskName !== taskName) {
+                    yield renameTask(taskName, newTaskName);
+                }
+                taskListContainer.innerHTML = "";
+                const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
+                renderTasks(taskLS);
+                updateGridNumbers();
+            });
+            textarea === null || textarea === void 0 ? void 0 : textarea.addEventListener("keydown", onEditKeyDown);
+        }
+    });
 }
 function searchTaskInputEvent() {
     searchTasks(searchTaskInput.value);
 }
 function deleteAllButtonEvent() {
-    // UI
-    taskListContainer.innerHTML = "";
-    // Data
-    saveRemovedTask(Group.all);
-    removeAllTasks();
-    showUndoBtn();
-    undoButton.setAttribute("data-task-state", Group.all);
-    checkTasks();
-    updateGridNumbers();
+    return __awaiter(this, void 0, void 0, function* () {
+        // UI
+        taskListContainer.innerHTML = "";
+        // Data
+        saveRemovedTask(Group.all);
+        yield removeAllTasks();
+        showUndoBtn();
+        undoButton.setAttribute("data-task-state", Group.all);
+        checkTasks();
+        updateGridNumbers();
+    });
 }
 function deleteCompletedButtonEvent() {
-    // UI
-    taskListContainer.innerHTML = "";
-    // Data
-    saveRemovedTask(Group.completed);
-    removeAllCompletedTasks();
-    showUndoBtn();
-    undoButton.setAttribute("data-task-state", Group.completed);
-    checkTasks();
-    updateGridNumbers();
+    return __awaiter(this, void 0, void 0, function* () {
+        // UI
+        taskListContainer.innerHTML = "";
+        // Data
+        saveRemovedTask(Group.completed);
+        yield removeAllCompletedTasks();
+        showUndoBtn();
+        undoButton.setAttribute("data-task-state", Group.completed);
+        checkTasks();
+        updateGridNumbers();
+    });
 }
 function undoButtonEvent() {
-    undoButton.classList.add("hidden");
-    const taskState = undoButton.getAttribute("data-task-state");
-    const taskName = undoButton.getAttribute("data-task-name");
-    if (!taskState)
-        return;
-    returnRemovedTask(taskState, RemoveType.undo, taskName || undefined);
-    checkTasks();
-    updateGridNumbers();
-    // const removedTask: [string, State][] = JSON.parse(undoButton.getAttribute("data-src") || "")
-    // const inner = removedTask[0]
-    // returnRemovedTask(removedTask)
-    // addTaskUI(inner[0], inner[1])
-    // undoButton.removeAttribute("disabled")
-    // undoButton.classList.add("hidden")
+    return __awaiter(this, void 0, void 0, function* () {
+        undoButton.classList.add("hidden");
+        const taskState = undoButton.getAttribute("data-task-state");
+        const taskName = undoButton.getAttribute("data-task-name");
+        if (!taskState)
+            return;
+        yield returnRemovedTask(taskState, RemoveType.undo, taskName || undefined);
+        checkTasks();
+        updateGridNumbers();
+        // const removedTask: [string, State][] = JSON.parse(undoButton.getAttribute("data-src") || "")
+        // const inner = removedTask[0]
+        // returnRemovedTask(removedTask)
+        // addTaskUI(inner[0], inner[1])
+        // undoButton.removeAttribute("disabled")
+        // undoButton.classList.add("hidden")
+    });
 }
 // export function renderGridNumbers() {
 // 	const tasksLs: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]")

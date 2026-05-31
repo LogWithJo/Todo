@@ -2,13 +2,47 @@ import { taskListContainer, updateGridNumbers } from "./dom.js";
 import { type alone, type array, Group, RemoveType, State } from "./types.js";
 import { addTaskUI, checkTasks, renderTasks } from "./ui.js";
 
-export function addTaskToLocalStorage(taskName: string, date: string) {
+const API_BASE = "/api";
+
+async function fetchTasksFromServer() {
+	const response = await fetch(`${API_BASE}/tasks`);
+	if (!response.ok) {
+		return [];
+	}
+	const data = await response.json();
+	return data.tasks as Array<[string, State, string]>;
+}
+
+async function createTaskOnServer(task: [string, State, string]) {
+	await fetch(`${API_BASE}/tasks`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name: task[0], state: task[1], date: task[2] }),
+	});
+}
+
+async function saveTasksToServer(tasks: Array<[string, State, string]>) {
+	const order = tasks.map((task) => task[0]);
+	await fetch(`${API_BASE}/tasks/reorder`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ order }),
+	});
+}
+
+export async function addTaskToLocalStorage(taskName: string, date: string) {
+	await fetch(`${API_BASE}/tasks`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name: taskName, date }),
+	});
+
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasks.push([taskName, State.uncompleted, date]);
 	localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-export function stateTaskLocalStorage(taskName: string, state: State) {
+export async function stateTaskLocalStorage(taskName: string, state: State) {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasks.forEach((task) => {
 		if (task[0] === taskName) {
@@ -16,6 +50,12 @@ export function stateTaskLocalStorage(taskName: string, state: State) {
 		}
 	});
 	localStorage.setItem("tasks", JSON.stringify(tasks));
+
+	await fetch(`${API_BASE}/tasks/${encodeURIComponent(taskName)}`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ state }),
+	});
 }
 
 export function saveRemovedTask(state: Group, taskName?: string) {
@@ -34,7 +74,7 @@ export function saveRemovedTask(state: Group, taskName?: string) {
 	}
 }
 
-export function returnRemovedTask(group: Group, type: RemoveType, taskName?: string) {
+export async function returnRemovedTask(group: Group, type: RemoveType, taskName?: string) {
 	const tasksLS: [string, State, string][] = JSON.parse(localStorage.getItem("tasks") || "[]");
 	if (group === Group.all) {
 		const tasksSS: [string, State, string][] = JSON.parse(sessionStorage.getItem("all") || "[]");
@@ -49,6 +89,7 @@ export function returnRemovedTask(group: Group, type: RemoveType, taskName?: str
 			localStorage.setItem("tasks", JSON.stringify(alls));
 			sessionStorage.setItem("all", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 			addTaskUI(task[0], task[1], task[2]);
+			await createTaskOnServer(task);
 		}
 	} else if (group === Group.completed) {
 		const tasksSS: array = JSON.parse(sessionStorage.getItem("completed") || "[]");
@@ -63,6 +104,7 @@ export function returnRemovedTask(group: Group, type: RemoveType, taskName?: str
 			localStorage.setItem("tasks", JSON.stringify(alls));
 			sessionStorage.setItem("completed", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 			addTaskUI(task[0], task[1], task[2]);
+			await createTaskOnServer(task);
 		}
 	} else if (group === Group.tasks) {
 		const tasksSS: array = JSON.parse(sessionStorage.getItem("tasks") || "[]");
@@ -71,16 +113,21 @@ export function returnRemovedTask(group: Group, type: RemoveType, taskName?: str
 		localStorage.setItem("tasks", JSON.stringify([...tasksLS, task]));
 		sessionStorage.setItem("tasks", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 		addTaskUI(task[0], task[1], task[2]);
+		await createTaskOnServer(task);
 	}
 }
 
-export function removeTaskLocalStorage(taskName: string) {
+export async function removeTaskLocalStorage(taskName: string) {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const updatedTasks = tasks.filter((task) => task[0] !== taskName);
 	localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+	await fetch(`${API_BASE}/tasks/${encodeURIComponent(taskName)}`, {
+		method: "DELETE",
+	});
 }
 
-export function reorderTasksLocalStorage(newOrder: string[]) {
+export async function reorderTasksLocalStorage(newOrder: string[]) {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const taskMap = new Map(tasks.map((task) => [task[0], task[1]]));
 	const reordered: array = newOrder
@@ -90,20 +137,20 @@ export function reorderTasksLocalStorage(newOrder: string[]) {
 		})
 		.filter((entry): entry is alone => entry !== undefined);
 	const remaining = tasks.filter((task) => !newOrder.includes(task[0]));
-	localStorage.setItem("tasks", JSON.stringify([...reordered, ...remaining]));
+	const finalTasks = [...reordered, ...remaining];
+	localStorage.setItem("tasks", JSON.stringify(finalTasks));
+	await saveTasksToServer(finalTasks);
 }
 
-// Render Tasks
-window.addEventListener("load", () => {
-	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
+window.addEventListener("load", async () => {
+	const tasks = await fetchTasksFromServer();
+	localStorage.setItem("tasks", JSON.stringify(tasks));
 	tasks.forEach((task) => {
 		addTaskUI(task[0], task[1], task[2]);
 	});
 	checkTasks();
 	updateGridNumbers();
 });
-
-// Search
 
 export function searchTasks(SearchVal: string) {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
@@ -124,26 +171,24 @@ export function searchTasks(SearchVal: string) {
 	}
 }
 
-export function removeAllTasks() {
+export async function removeAllTasks() {
 	localStorage.setItem("tasks", JSON.stringify([]));
+	await fetch(`${API_BASE}/tasks`, { method: "DELETE" });
 }
 
-export function removeAllCompletedTasks() {
+export async function removeAllCompletedTasks() {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const updatedTasks = tasks.filter((task) => task[1] === State.uncompleted);
 	localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 	updatedTasks.forEach((task) => {
 		addTaskUI(task[0], task[1], task[2]);
 	});
+	await fetch(`${API_BASE}/tasks?state=completed`, { method: "DELETE" });
 }
 
 export function checkTasksLS() {
 	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
-	if (tasks.length <= 0) {
-		return true;
-	} else {
-		return false;
-	}
+	return tasks.length <= 0;
 }
 
 export function getDate(time: string) {
@@ -159,15 +204,10 @@ export function auth(taskName: string) {
 	const all = JSON.parse(sessionStorage.getItem("tasks") || "[]");
 	const completed = JSON.parse(sessionStorage.getItem("tasks") || "[]");
 	const allTasks = [...LS, ...all, ...completed];
-	const auth = allTasks.filter((task) => task[0] === taskName);
-	if (auth.length === 0) {
-		return false;
-	} else {
-		return true;
-	}
+	return allTasks.some((task) => task[0] === taskName);
 }
 
-export function renameTask(taskName: string, newTaskName: string) {
+export async function renameTask(taskName: string, newTaskName: string) {
 	const tasksLS: [string, State, string][] = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasksLS.forEach((task: [string, State, string]) => {
 		if (task[0] === taskName) {
@@ -175,4 +215,9 @@ export function renameTask(taskName: string, newTaskName: string) {
 		}
 	});
 	localStorage.setItem("tasks", JSON.stringify(tasksLS));
+	await fetch(`${API_BASE}/tasks/${encodeURIComponent(taskName)}`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name: newTaskName }),
+	});
 }
