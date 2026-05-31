@@ -1,22 +1,15 @@
-import { Group } from "./types.js";
-import { taskList } from "./dom.js";
+import { taskListContainer } from "./dom.js";
+import { type alone, type array, Choose, Group, RemoveType, Show, State } from "./types.js";
 import { addTaskUI, checkTasks, renderTasks } from "./ui.js";
-import {Show, Choose, alone, array, RemoveType, State } from './types.js'
-
-
 
 export function addTaskToLocalStorage(taskName: string, date: string) {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasks.push([taskName, State.uncompleted, date]);
 	localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 export function stateTaskLocalStorage(taskName: string, state: State) {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasks.forEach((task) => {
 		if (task[0] === taskName) {
 			task[1] = state;
@@ -27,87 +20,48 @@ export function stateTaskLocalStorage(taskName: string, state: State) {
 
 export function saveRemovedTask(state: Group, taskName?: string) {
 	if (state === Group.all) {
-		const allTasksLocalStorage = JSON.parse(
-			localStorage.getItem("tasks") || "[]",
-		);
+		const allTasksLocalStorage = JSON.parse(localStorage.getItem("tasks") || "[]");
 		sessionStorage.setItem("all", JSON.stringify(allTasksLocalStorage));
 	} else if (state === Group.completed) {
-		const allTasksLocalStorage = JSON.parse(
-			localStorage.getItem("tasks") || "[]",
-		);
-		const completedTasks = allTasksLocalStorage.filter(
-			(task: alone) => task[1] === State.completed,
-		);
+		const allTasksLocalStorage = JSON.parse(localStorage.getItem("tasks") || "[]");
+		const completedTasks = allTasksLocalStorage.filter((task: alone) => task[1] === State.completed);
 		sessionStorage.setItem("completed", JSON.stringify(completedTasks));
 	} else if (state === Group.tasks) {
-		const tasksLocalStorage: Array<[string, State, string]> = JSON.parse(
-			localStorage.getItem("tasks") || "[]",
-		);
-		const removedTask = tasksLocalStorage.filter(
-			(task: [string, State, string]) => task[0].includes(taskName || ""),
-		);
-		const tasksSessionStorage: array = JSON.parse(
-			sessionStorage.getItem("tasks") || "[]",
-		);
-		sessionStorage.setItem(
-			"tasks",
-			JSON.stringify([...tasksSessionStorage, removedTask[0]]),
-		);
+		const tasksLocalStorage: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
+		const removedTask = tasksLocalStorage.filter((task: [string, State, string]) => task[0].includes(taskName || ""));
+		const tasksSessionStorage: array = JSON.parse(sessionStorage.getItem("tasks") || "[]");
+		sessionStorage.setItem("tasks", JSON.stringify([...tasksSessionStorage, removedTask[0]]));
 	}
 }
 
-
-
-export function returnRemovedTask(
-	group: Group,
-	type: RemoveType,
-	taskName?: string,
-) {
-	const tasksLS: [string, State, string][] = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+export function returnRemovedTask(group: Group, type: RemoveType, taskName?: string) {
+	const tasksLS: [string, State, string][] = JSON.parse(localStorage.getItem("tasks") || "[]");
 	if (group === Group.all) {
-		const tasksSS: [string, State, string][] = JSON.parse(
-			sessionStorage.getItem("all") || "[]",
-		);
+		const tasksSS: [string, State, string][] = JSON.parse(sessionStorage.getItem("all") || "[]");
 		if (type === RemoveType.undo) {
 			const all: [string, State, string][] = [...tasksSS, ...tasksLS];
 			localStorage.setItem("tasks", JSON.stringify(all));
 			sessionStorage.removeItem("all");
 			renderTasks(all);
 		} else if (type === RemoveType.return) {
-			const task: [string, State, string] = tasksSS.find(
-				(task) => task[0] === taskName,
-			) || ["taskName", State.completed, "date"];
+			const task: [string, State, string] = tasksSS.find((task) => task[0] === taskName) || ["taskName", State.completed, "date"];
 			const alls: [string, State, string][] = [...tasksLS, task];
 			localStorage.setItem("tasks", JSON.stringify(alls));
-			sessionStorage.setItem(
-				"all",
-				JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)),
-			);
+			sessionStorage.setItem("all", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 			addTaskUI(task[0], task[1], task[2]);
 		}
 	} else if (group === Group.completed) {
-		const tasksSS: array = JSON.parse(
-			sessionStorage.getItem("completed") || "[]",
-		);
+		const tasksSS: array = JSON.parse(sessionStorage.getItem("completed") || "[]");
 		if (type === RemoveType.undo) {
 			const all = [...tasksSS, ...tasksLS];
 			localStorage.setItem("tasks", JSON.stringify(all));
 			sessionStorage.removeItem("completed");
 			renderTasks(tasksSS);
 		} else if (type === RemoveType.return) {
-			const task: alone = tasksSS.find((task) => task[0] === taskName) || [
-				"taskName",
-				State.completed,
-				"date",
-			];
+			const task: alone = tasksSS.find((task) => task[0] === taskName) || ["taskName", State.completed, "date"];
 			const alls: array = [...tasksLS, task];
 			localStorage.setItem("tasks", JSON.stringify(alls));
-			sessionStorage.setItem(
-				"completed",
-				JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)),
-			);
+			sessionStorage.setItem("completed", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 			addTaskUI(task[0], task[1], task[2]);
 		}
 	} else if (group === Group.tasks) {
@@ -115,26 +69,19 @@ export function returnRemovedTask(
 		const task = tasksSS.find((task) => task[0] === taskName);
 		if (!task) return;
 		localStorage.setItem("tasks", JSON.stringify([...tasksLS, task]));
-		sessionStorage.setItem(
-			"tasks",
-			JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)),
-		);
+		sessionStorage.setItem("tasks", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
 		addTaskUI(task[0], task[1], task[2]);
 	}
 }
 
 export function removeTaskLocalStorage(taskName: string) {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const updatedTasks = tasks.filter((task) => task[0] !== taskName);
 	localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 }
 
 export function reorderTasksLocalStorage(newOrder: string[]) {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const taskMap = new Map(tasks.map((task) => [task[0], task[1]]));
 	const reordered: array = newOrder
 		.map((name) => {
@@ -148,9 +95,7 @@ export function reorderTasksLocalStorage(newOrder: string[]) {
 
 // Render Tasks
 window.addEventListener("load", () => {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasks.forEach((task) => {
 		addTaskUI(task[0], task[1], task[2]);
 	});
@@ -160,10 +105,10 @@ window.addEventListener("load", () => {
 // Search
 
 export function searchTasks(SearchVal: string) {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
-	taskList.innerHTML = "";
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
+	if (taskListContainer) {
+		taskListContainer.innerHTML = "";
+	}
 	const tasksArray: Array<[string, State, string]> = [];
 	tasks.forEach((task) => {
 		if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {
@@ -185,9 +130,7 @@ export function removeAllTasks() {
 }
 
 export function removeAllCompletedTasks() {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	const updatedTasks = tasks.filter((task) => task[1] === State.uncompleted);
 	localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 	updatedTasks.forEach((task) => {
@@ -196,9 +139,7 @@ export function removeAllCompletedTasks() {
 }
 
 export function checkTasksLS() {
-	const tasks: Array<[string, State, string]> = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasks: Array<[string, State, string]> = JSON.parse(localStorage.getItem("tasks") || "[]");
 	if (tasks.length <= 0) {
 		return true;
 	} else {
@@ -228,9 +169,7 @@ export function auth(taskName: string) {
 }
 
 export function renameTask(taskName: string, newTaskName: string) {
-	const tasksLS: [string, State, string][] = JSON.parse(
-		localStorage.getItem("tasks") || "[]",
-	);
+	const tasksLS: [string, State, string][] = JSON.parse(localStorage.getItem("tasks") || "[]");
 	tasksLS.forEach((task: [string, State, string]) => {
 		if (task[0] === taskName) {
 			task[0] = newTaskName;

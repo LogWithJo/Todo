@@ -2,27 +2,27 @@ import { removeRemovedTask, renderTasksSS, searchDelTasks } from "./Ddata.js";
 import Mission, { checkDeletedTasks, removeDUI } from "./Dui.js";
 import { RemoveType, returnRemovedTask } from "./data.js";
 import { checkTasks } from "./ui.js";
-const openDeletedBtn = document.getElementById("openDeletedBtn");
-const deletedPopup = document.getElementById("deletedPopup");
-const closeDeletedBtn = document.getElementById("closeDeletedBtn");
-// const popupBody = document.getElementById("popupBody") as HTMLDivElement;
-export const deletedTasksList = document.getElementById("deletedTasksList");
-export const restoreAllRemovedTasks = document.getElementById("restoreAllRemovedTasks");
-export const deleteAllRemovedTasks = document.getElementById("deleteAllRemovedTasks");
-export const searchDeletedTasks = document.getElementById("searchDeletedTasks");
-export const noDeletedTasksUI = document.getElementById("noDeletedTasksUI");
-openDeletedBtn.addEventListener("click", () => {
-    deletedPopup.classList.remove("hidden");
+const openDeletedTasksButton = document.getElementById("openDeletedTasksButton");
+const deletedTasksPopup = document.getElementById("deletedTasksPopup");
+const closeDeletedPopupButton = document.getElementById("closeDeletedPopupButton");
+// const deletedPopupBody = document.getElementById("deletedPopupBody") as HTMLDivElement;
+export const deletedTasksContainer = document.getElementById("deletedTasksContainer");
+export const restoreAllDeletedTasksButton = document.getElementById("restoreAllDeletedTasksButton");
+export const deleteAllDeletedTasksButton = document.getElementById("deleteAllDeletedTasksButton");
+export const searchDeletedTasksInput = document.getElementById("searchDeletedTasksInput");
+export const noDeletedTasksMessage = document.getElementById("noDeletedTasksMessage");
+openDeletedTasksButton.addEventListener("click", () => {
+    deletedTasksPopup.classList.remove("hidden");
     addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
-            deletedPopup.classList.add("hidden");
+            deletedTasksPopup.classList.add("hidden");
         }
     });
     renderTasksSS();
     checkDeletedTasks();
 });
-closeDeletedBtn.addEventListener("click", () => {
-    deletedPopup.classList.add("hidden");
+closeDeletedPopupButton.addEventListener("click", () => {
+    deletedTasksPopup.classList.add("hidden");
 });
 export var Group;
 (function (Group) {
@@ -30,17 +30,17 @@ export var Group;
     Group["completed"] = "completed";
     Group["tasks"] = "tasks";
 })(Group || (Group = {}));
-deletedPopup.addEventListener("click", (e) => {
+deletedTasksPopup.addEventListener("click", (e) => {
     const target = e.target;
-    if (target === deletedPopup) {
-        deletedPopup.classList.add("hidden");
+    if (target === deletedTasksPopup) {
+        deletedTasksPopup.classList.add("hidden");
     }
 });
-// deletedTasksList?.addEventListener("click", (e) => {
+// deletedTasksContainer?.addEventListener("click", (e) => {
 // 	const target = e.target as HTMLElement;
 // 	const element = target
 // })
-deletedTasksList === null || deletedTasksList === void 0 ? void 0 : deletedTasksList.addEventListener("click", (e) => {
+deletedTasksContainer === null || deletedTasksContainer === void 0 ? void 0 : deletedTasksContainer.addEventListener("click", (e) => {
     const target = e.target;
     const element = target.closest("[data-cardName]");
     const restoreBtn = target.closest(`#${Mission.restore}`);
@@ -73,7 +73,7 @@ deletedTasksList === null || deletedTasksList === void 0 ? void 0 : deletedTasks
     }
     element.remove();
 });
-restoreAllRemovedTasks.addEventListener("click", () => {
+restoreAllDeletedTasksButton.addEventListener("click", () => {
     const tasksSS1 = JSON.parse(sessionStorage.getItem("all") || "[]");
     const tasksSS2 = JSON.parse(sessionStorage.getItem("completed") || "[]");
     const tasksSS3 = JSON.parse(sessionStorage.getItem("tasks") || "[]");
@@ -86,21 +86,21 @@ restoreAllRemovedTasks.addEventListener("click", () => {
     tasksSS3.forEach((task) => {
         returnRemovedTask(Group.tasks, RemoveType.return, task[0]);
     });
-    if (!deletedTasksList)
+    if (!deletedTasksContainer)
         return;
-    deletedTasksList.innerHTML = "";
+    deletedTasksContainer.innerHTML = "";
     checkDeletedTasks();
     checkTasks();
 });
-deleteAllRemovedTasks.addEventListener("click", () => {
+deleteAllDeletedTasksButton.addEventListener("click", () => {
     sessionStorage.setItem("all", "[]");
     sessionStorage.setItem("completed", "[]");
     sessionStorage.setItem("tasks", "[]");
-    if (!deletedTasksList)
+    if (!deletedTasksContainer)
         return;
-    deletedTasksList.innerHTML = "";
+    deletedTasksContainer.innerHTML = "";
     checkDeletedTasks();
 });
-searchDeletedTasks.addEventListener("input", () => {
-    searchDelTasks(searchDeletedTasks.value);
+searchDeletedTasksInput.addEventListener("input", () => {
+    searchDelTasks(searchDeletedTasksInput.value);
 });

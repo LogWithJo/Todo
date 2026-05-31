@@ -23,7 +23,7 @@
     <!-- <div class="relative flex justify-center items-center">
       <h1 class="text-2xl font-bold text-center mb-4">📝 My To-Do App</h1>
   
-          <button type="button" id="openDeletedBtn"
+          <button type="button" id="openDeletedTasksButton"
         class="bg-red-500 hover:bg-red-600 justify-center justify-self-end text-white px-4 py-2 rounded-2xl shadow-lg transition flex items-center gap-2">
   
         <i class="fa-solid fa-trash"></i>
@@ -44,7 +44,7 @@
   <div class="flex-1 flex justify-end">
     <button
       type="button"
-      id="openDeletedBtn"
+      id="openDeletedTasksButton"
       class="backdrop-blur-3xl cursor-pointer bg-[rgba(255,194,209,0.3)] text-white px-4 py-2 rounded-2xl shadow-lg transition flex items-center gap-2"
     >
       <i class="fa-solid fa-trash"></i>
@@ -57,46 +57,46 @@
   <div class="grid grid-cols-3 w-full *:shadow-xl *:border-0.5 *:border-white *:w-full *:flex *:flex-col *:justify-center *:items-start">
     <div>
       <div>finished</div>
-      <div id="finishedNumber">12</div>
+      <div id="finishedCount">12</div>
     </div>
     <div>
       <div>pending</div>
-      <div id="pendingNumber">12</div>
+      <div id="pendingCount">12</div>
     </div>
     <div>
       <div>deleted</div>
-      <div id="deletedNumber">12</div>
+      <div id="deletedCount">12</div>
     </div>
   </div>
 
     <!-- Input -->
     <div class="flex gap-2 justify-center items-center">
       <div class="flex justify-center items-center w-full">
-        <input id="taskInput" type="text" placeholder="Enter one Word..."
+        <input id="newTaskInput" type="text" placeholder="Enter one Word..."
           class="flex w-full rounded-full bg-[rgba(255,194,209,0.3)] p-2 pl-5 placeholder:text-white outline-none " />
       </div>
-      <button class="bg-[rgba(255,194,209,0.3)] cursor-pointer border-[rgba(255,255,255,0.18)] border text-white p-3 flex justify-center items-center rounded-full" type="button" id="addBtn">
+      <button class="bg-[rgba(255,194,209,0.3)] cursor-pointer border-[rgba(255,255,255,0.18)] border text-white p-3 flex justify-center items-center rounded-full" type="button" id="addTaskButton">
         <i class="fa-solid fa-plus w-full h-full"></i>
       </button>
     </div>
 
     <div class="flex justify-between items-center">
       <div class="p-3 bg-[rgba(255,194,209,0.3)] *:cursor-pointer rounded-full cursor-pointer">
-        <input type="date" name="" id="dateInput">
+        <input type="date" name="" id="dueDateInput">
       </div>
   
       <!-- 🔍 Search Input (NEW) -->
       <div class="flex justify-center items-center">
-        <input id="searchInput" type="search" placeholder="Search tasks..."
+        <input id="searchTaskInput" type="search" placeholder="Search tasks..."
           class="w-full placeholder:text-white bg-[rgba(255,194,209,0.3)] rounded-full p-2 pl-5 outline-none" />
       </div>
     </div>
 
     <!-- Task List -->
-    <div class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-1" id="taskList">
+    <div class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-1" id="taskListContainer">
       <!-- Tasks here -->
     </div>
-    <div id="noTasksUI" class="hidden w-full h-full flex items-center justify-center py-10 text-center">
+    <div id="emptyTasksMessage" class="hidden w-full h-full flex items-center justify-center py-10 text-center">
   <!-- <h2 class="text-2xl font-bold text-gray-700">No Tasks Found 📝</h2>
   <p class="mt-2 text-gray-500">
     Add your first task to get started.
@@ -108,12 +108,12 @@
 
     <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
 
-      <button id="deleteAllBtn" type="button" data-type="deleteAll"
+      <button id="deleteAllButton" type="button" data-type="deleteAll"
         class="px-4 py-2 rounded-xl bg-[rgba(255,194,209,0.3)] border-[rgba(255,255,255,0.18)] border hover:bg-[rgba(256,195,210,0.4)] cursor-pointer text-white font-medium transition active:scale-95">
         Delete All
       </button>
 
-      <button id="deleteCompletedBtn" type="button"  data-type="deleteCompleted"
+      <button id="deleteCompletedButton" type="button"  data-type="deleteCompleted"
         class="px-4 py-2 rounded-xl bg-[rgba(255,194,209,0.3)] font-medium transition hover:hover:bg-[rgba(256,195,210,0.4)] border-[rgba(255,255,255,0.18)] border  active:scale-95">
         Delete Completed
       </button>
@@ -121,11 +121,11 @@
     </div>
   </div>
 
-  <div id="errorMsg"
+  <div id="errorMessage"
     class="fixed top-1/6 left-1/2 -translate-y-1/2 -translate-x-1/2 p-2 rounded bg-[rgba(243,234,236,0.3)] hidden capitalize backdrop-blur-3xl font-bold text-white">
   </div>
 
-  <button type="button" id="undoBtn" class="fixed bottom-6 left-1/2 z-100 hidden -translate-x-1/2 cursor-pointer
+  <button type="button" id="undoButton" class="fixed bottom-6 left-1/2 z-100 hidden -translate-x-1/2 cursor-pointer
         bg-[rgba(255,194,209,0.3)] shadow-xl rounded-2xl px-5 py-3 flex items-center gap-3
       transition-all duration-300 ease-out border border-gray-200">
 
@@ -134,13 +134,13 @@
   </button>
 
 <div
-  id="deletedPopup"
+  id="deletedTasksPopup"
   class="fixed inset-0 bg-black/40 hidden backdrop-blur-sm max items-start justify-center p-6 z-50"
 >
 
   <!-- POPUP BODY -->
   <div
-    id="popupBody"
+    id="deletedPopupBody"
     class="w-full max-w-6xl relative flex flex-col max-h-[80vh] gap-6 bg-transparent text-white rounded-3xl shadow-2xl p-6 mt-10 animate-[fadeIn_.2s_ease]"
   >
 
@@ -159,7 +159,7 @@
       </div>
 
       <button
-        id="closeDeletedBtn"
+        id="closeDeletedPopupButton"
         type="button"
         class="bg-[rgba(255,194,209,0.3)] hover:bg-[rgba(257,196,211,0.5)] cursor-pointer text-white w-12 h-12 rounded-full flex items-center justify-center"
       >
@@ -175,7 +175,7 @@
       <div class="relative w-full lg:max-w-md">
         <input
           type="text"
-          id="searchDeletedTasks"
+          id="searchDeletedTasksInput"
           placeholder="Search removed tasks..."
           class="w-full placeholder:text-white bg-[rgba(255,194,209,0.3)] rounded-full p-2 pl-10 outline-none text-white"
         />
@@ -188,7 +188,7 @@
 
         <button
           type="button"
-          id="restoreAllRemovedTasks"
+          id="restoreAllDeletedTasksButton"
           class="px-5 py-3 rounded-2xl cursor-pointer bg-[rgba(255,194,209,0.3)] hover:bg-[rgba(256,197,222,0.5)] text-white font-semibold transition flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-rotate-left"></i>
@@ -197,7 +197,7 @@
 
         <button
           type="button"
-          id="deleteAllRemovedTasks"
+          id="deleteAllDeletedTasksButton"
           class="px-5 py-3 rounded-2xl cursor-pointer bg-[rgba(255,194,209,0.3)] hover:bg-[rgba(256,197,222,0.5)] text-white font-semibold transition flex items-center justify-center gap-2"
         >
           <i class="fa-solid fa-trash"></i>
@@ -210,7 +210,7 @@
 
     <!-- EMPTY STATE -->
 <div
-  id="noDeletedTasksUI"
+  id="noDeletedTasksMessage"
   class="w-full mt-4 flex flex-col items-center justify-center text-center"
 >
   <div class="w-16 h-16 rounded-full mx-auto bg-[rgba(255,194,209,0.3)] flex items-center justify-center text-white text-2xl">
@@ -227,7 +227,7 @@
 </div>
     <!-- GRID -->
     <div
-      id="deletedTasksList"
+      id="deletedTasksContainer"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-h-[45vh] overflow-y-auto pr-2"
     >
     </div>

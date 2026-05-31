@@ -9,26 +9,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { showIcon } from "./api.js";
 import { checkTasksLS, getDate, reorderTasksLocalStorage, State, } from "./data.js";
-import { addBtn, Choose, errorMsg, noTasksUI, Show, taskInput, taskList, undoBtn, } from "./dom.js";
+import { addTaskButton, Choose, errorMessage, emptyTasksMessage, Show, newTaskInput, taskListContainer, undoButton, } from "./dom.js";
 let dragSource = null;
-let taskListContainerInitialized = false;
+let taskListContainerContainerInitialized = false;
 export function showErrors(show) {
-    if (errorMsg instanceof HTMLElement) {
-        errorMsg.classList.remove("hidden");
+    if (errorMessage instanceof HTMLElement) {
+        errorMessage.classList.remove("hidden");
     }
     if (show === Show.empty) {
-        errorMsg.textContent = "write a task";
+        errorMessage.textContent = "write a task";
     }
     else {
-        errorMsg.textContent = "the task added already";
+        errorMessage.textContent = "the task added already";
     }
-    addBtn === null || addBtn === void 0 ? void 0 : addBtn.removeAttribute("disabled");
-    taskInput === null || taskInput === void 0 ? void 0 : taskInput.removeAttribute("disabled");
+    addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.removeAttribute("disabled");
+    newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.removeAttribute("disabled");
 }
 function updateTaskOrderFromDOM() {
-    if (!taskList)
+    if (!taskListContainer)
         return;
-    const newOrder = Array.from(taskList.children).map((child) => child.getAttribute("name") || "");
+    const newOrder = Array.from(taskListContainer.children).map((child) => child.getAttribute("name") || "");
     reorderTasksLocalStorage(newOrder);
 }
 function onDragStart(event) {
@@ -66,14 +66,14 @@ function onDrop(event) {
     if (sourceName === this.getAttribute("name"))
         return;
     const sourceElement = document.querySelector(`[name="${sourceName}"]`);
-    if (sourceElement && taskList) {
+    if (sourceElement && taskListContainer) {
         const rect = this.getBoundingClientRect();
         const insertBefore = event.clientY < rect.top + rect.height / 2;
         if (insertBefore) {
-            taskList.insertBefore(sourceElement, this);
+            taskListContainer.insertBefore(sourceElement, this);
         }
         else {
-            taskList.insertBefore(sourceElement, this.nextSibling);
+            taskListContainer.insertBefore(sourceElement, this.nextSibling);
         }
         updateTaskOrderFromDOM();
     }
@@ -87,24 +87,24 @@ export function attachDragAndDrop(taskItem) {
     taskItem.addEventListener("drop", onDrop);
 }
 export function setupTaskListContainerDrag() {
-    if (!taskList || taskListContainerInitialized)
+    if (!taskListContainer || taskListContainerContainerInitialized)
         return;
-    taskList.addEventListener("dragover", (event) => {
+    taskListContainer.addEventListener("dragover", (event) => {
         event.preventDefault();
     });
-    taskList.addEventListener("drop", (event) => {
+    taskListContainer.addEventListener("drop", (event) => {
         var _a;
         event.preventDefault();
         const sourceName = (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData("text/plain");
-        if (!sourceName || !taskList)
+        if (!sourceName || !taskListContainer)
             return;
         const sourceElement = document.querySelector(`[name="${sourceName}"]`);
-        if (sourceElement && event.target === taskList) {
-            taskList.appendChild(sourceElement);
+        if (sourceElement && event.target === taskListContainer) {
+            taskListContainer.appendChild(sourceElement);
             updateTaskOrderFromDOM();
         }
     });
-    taskListContainerInitialized = true;
+    taskListContainerContainerInitialized = true;
 }
 export function addTaskUI(taskName, state, date) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -150,7 +150,7 @@ export function addTaskUI(taskName, state, date) {
             "flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
         nameDiv.className =
             "px-2 font-bold capitalize flex-1 flex justify-center items-center";
-        nameDiv.id = "title";
+        nameDiv.id = "taskTitle";
         nameDiv.textContent = taskName;
         iconsDiv.className = "flex gap-3 items-center justify-center";
         if (state === State.completed) {
@@ -190,15 +190,15 @@ export function addTaskUI(taskName, state, date) {
         iconsDiv.append(editDiv, removeDiv, burgerDiv);
         parentDiv.append(nameIconDiv, iconsDiv);
         if (state === State.completed) {
-            taskList === null || taskList === void 0 ? void 0 : taskList.append(parentDiv);
+            taskListContainer === null || taskListContainer === void 0 ? void 0 : taskListContainer.append(parentDiv);
         }
         else {
-            taskList === null || taskList === void 0 ? void 0 : taskList.prepend(parentDiv);
+            taskListContainer === null || taskListContainer === void 0 ? void 0 : taskListContainer.prepend(parentDiv);
         }
         attachDragAndDrop(parentDiv);
         setupTaskListContainerDrag();
-        addBtn === null || addBtn === void 0 ? void 0 : addBtn.removeAttribute("disabled");
-        taskInput === null || taskInput === void 0 ? void 0 : taskInput.removeAttribute("disabled");
+        addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.removeAttribute("disabled");
+        newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.removeAttribute("disabled");
     });
 }
 export function removeUI(taskName) {
@@ -210,7 +210,7 @@ export function removeUI(taskName) {
 export function checkedUI(taskName) {
     const parent = document.querySelector(`[name="${taskName}"]`);
     const checkI = document.querySelector(`[name="${taskName}"] [data-src="${taskName}"]`);
-    const text = document.querySelector(`[name="${taskName}"] #title`);
+    const text = document.querySelector(`[name="${taskName}"] #taskTitle`);
     if (text instanceof HTMLElement &&
         parent instanceof HTMLElement &&
         checkI instanceof HTMLElement) {
@@ -223,7 +223,7 @@ export function checkedUI(taskName) {
     const t = parent;
     parent === null || parent === void 0 ? void 0 : parent.remove();
     if (t) {
-        taskList === null || taskList === void 0 ? void 0 : taskList.appendChild(t);
+        taskListContainer === null || taskListContainer === void 0 ? void 0 : taskListContainer.appendChild(t);
     }
 }
 export function renderTasks(tasks) {
@@ -232,25 +232,25 @@ export function renderTasks(tasks) {
     });
 }
 // export function showUndoBtn() {
-// 	undoBtn.classList.remove("hidden");
+// 	undoButton.classList.remove("hidden");
 // 	document.body.addEventListener("click", () => {
-// 		undoBtn.classList.add("hidden")
+// 		undoButton.classList.add("hidden")
 // 	}, {once: true})
 // 	setTimeout(() => {
-// 		undoBtn.classList.add("hidden");
+// 		undoButton.classList.add("hidden");
 // 	}, 5000);
 // }
 export function showUndoBtn() {
-    undoBtn.classList.remove("hidden");
+    undoButton.classList.remove("hidden");
     const hideUndo = (e) => {
         const target = e.target;
         if (target.closest("#undo-btn"))
             return;
-        undoBtn.classList.add("hidden");
+        undoButton.classList.add("hidden");
         document.body.removeEventListener("click", hideUndo);
     };
     setTimeout(() => {
-        undoBtn.classList.add("hidden");
+        undoButton.classList.add("hidden");
         document.body.removeEventListener("click", hideUndo);
     }, 5000);
     setTimeout(() => {
@@ -258,13 +258,13 @@ export function showUndoBtn() {
     }, 0);
 }
 export function checkTasks(state) {
-    if (!noTasksUI)
+    if (!emptyTasksMessage)
         return;
     const show = state !== undefined ? state : checkTasksLS();
-    noTasksUI.style.display = show ? "block" : "none";
+    emptyTasksMessage.style.display = show ? "block" : "none";
 }
 export function changeTag(elements, newTaskName) {
-    const element = elements.querySelector(`#title`);
+    const element = elements.querySelector(`#taskTitle`);
     if (!(element instanceof HTMLElement))
         return;
     const newElement = document.createElement("textarea");

@@ -9,71 +9,71 @@ import { initEventListeners } from "./dom.js";
 import { RemoveType, type State, Group } from "./types.js";
 import { checkTasks } from "./ui.js";
 
-const openDeletedBtn = document.getElementById(
-	"openDeletedBtn",
+const openDeletedTasksButton = document.getElementById(
+	"openDeletedTasksButton",
 ) as HTMLButtonElement;
-const deletedPopup = document.getElementById("deletedPopup") as HTMLDivElement;
-const closeDeletedBtn = document.getElementById(
-	"closeDeletedBtn",
+const deletedTasksPopup = document.getElementById("deletedTasksPopup") as HTMLDivElement;
+const closeDeletedPopupButton = document.getElementById(
+	"closeDeletedPopupButton",
 ) as HTMLButtonElement;
-// const popupBody = document.getElementById("popupBody") as HTMLDivElement;
-export const deletedTasksList = document.getElementById("deletedTasksList");
-export const restoreAllRemovedTasks = document.getElementById(
-	"restoreAllRemovedTasks",
+// const deletedPopupBody = document.getElementById("deletedPopupBody") as HTMLDivElement;
+export const deletedTasksContainer = document.getElementById("deletedTasksContainer");
+export const restoreAllDeletedTasksButton = document.getElementById(
+	"restoreAllDeletedTasksButton",
 ) as HTMLButtonElement;
-export const deleteAllRemovedTasks = document.getElementById(
-	"deleteAllRemovedTasks",
+export const deleteAllDeletedTasksButton = document.getElementById(
+	"deleteAllDeletedTasksButton",
 ) as HTMLButtonElement;
-export const searchDeletedTasks = document.getElementById(
-	"searchDeletedTasks",
+export const searchDeletedTasksInput = document.getElementById(
+	"searchDeletedTasksInput",
 ) as HTMLButtonElement;
-export const noDeletedTasksUI = document.getElementById(
-	"noDeletedTasksUI",
+export const noDeletedTasksMessage = document.getElementById(
+	"noDeletedTasksMessage",
 ) as HTMLElement;
 
 function initDeletedPageEventListeners() {
-	closeDeletedBtn.addEventListener("click", closeDeletedBtnEvent);
-	deletedPopup.addEventListener("click", (e) => {
-		deletedPopupEvent(e);
+	closeDeletedPopupButton.addEventListener("click", closeDeletedPopupButtonEvent);
+	deletedTasksPopup.addEventListener("click", (e) => {
+		deletedTasksPopupEvent(e);
 	});
-	deletedTasksList?.addEventListener("click", (e) => {
-		deletedTasksListEvent(e);
+	deletedTasksContainer?.addEventListener("click", (e) => {
+		deletedTasksContainerEvent(e);
 	});
-	restoreAllRemovedTasks.addEventListener("click", restoreAllRemovedTasksEvent);
-	deleteAllRemovedTasks.addEventListener("click", deleteAllRemovedTasksEvent);
-	searchDeletedTasks.addEventListener("click", searchDeletedTasksEvent);
+	restoreAllDeletedTasksButton.addEventListener("click", restoreAllDeletedTasksButtonEvent);
+	deleteAllDeletedTasksButton.addEventListener("click", deleteAllDeletedTasksButtonEvent);
+	searchDeletedTasksInput.addEventListener("click", searchDeletedTasksInputEvent);
 }
 
-openDeletedBtn.addEventListener("click", () => {
+openDeletedTasksButton.addEventListener("click", () => {
 	initDeletedPageEventListeners();
-	deletedPopup.classList.remove("hidden");
+	deletedTasksPopup.classList.remove("hidden");
 	addEventListener("keydown", (e) => {
 		if (e.key === "Escape") {
-			deletedPopup.classList.add("hidden");
+			deletedTasksPopup.classList.add("hidden");
 		}
 	});
 	renderTasksSS();
 	checkDeletedTasks();
 });
 
-function closeDeletedBtnEvent() {
-	deletedPopup.classList.add("hidden");
+function closeDeletedPopupButtonEvent() {
+	deletedTasksPopup.classList.add("hidden");
 }
 
-function deletedPopupEvent(e: MouseEvent) {
+function deletedTasksPopupEvent(e: MouseEvent) {
 	const target = e.target as Node;
 
-	if (target === deletedPopup) {
-		deletedPopup.classList.add("hidden");
+	if (target === deletedTasksPopup) {
+		deletedTasksPopup.classList.add("hidden");
 	}
 }
 
-// deletedTasksList?.addEventListener("click", (e) => {
+// deletedTasksContainer?.addEventListener("click", (e) => {
 // 	const target = e.target as HTMLElement;
 // 	const element = target
 // })
 
-function deletedTasksListEvent(e: MouseEvent) {
+function deletedTasksContainerEvent(e: MouseEvent) {
 	const target = e.target as HTMLElement;
 	const element = target.closest("[data-cardName]") as HTMLElement;
 	const restoreBtn = target.closest(`#${Mission.restore}`);
@@ -108,7 +108,7 @@ function deletedTasksListEvent(e: MouseEvent) {
 	element.remove();
 }
 
-function restoreAllRemovedTasksEvent() {
+function restoreAllDeletedTasksButtonEvent() {
 	const tasksSS1: [string, State][] = JSON.parse(
 		sessionStorage.getItem("all") || "[]",
 	);
@@ -127,21 +127,21 @@ function restoreAllRemovedTasksEvent() {
 	tasksSS3.forEach((task) => {
 		returnRemovedTask(Group.tasks, RemoveType.return, task[0]);
 	});
-	if (!deletedTasksList) return;
-	deletedTasksList.innerHTML = "";
+	if (!deletedTasksContainer) return;
+	deletedTasksContainer.innerHTML = "";
 	checkDeletedTasks();
 	checkTasks();
 }
 
-function deleteAllRemovedTasksEvent() {
+function deleteAllDeletedTasksButtonEvent() {
 	sessionStorage.setItem("all", "[]");
 	sessionStorage.setItem("completed", "[]");
 	sessionStorage.setItem("tasks", "[]");
-	if (!deletedTasksList) return;
-	deletedTasksList.innerHTML = "";
+	if (!deletedTasksContainer) return;
+	deletedTasksContainer.innerHTML = "";
 	checkDeletedTasks();
 }
 
-function searchDeletedTasksEvent() {
-	searchDelTasks(searchDeletedTasks.value);
+function searchDeletedTasksInputEvent() {
+	searchDelTasks(searchDeletedTasksInput.value);
 }

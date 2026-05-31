@@ -1,5 +1,5 @@
 import { checkDeletedTasksLS } from "./Ddata.js";
-import { deletedTasksList, noDeletedTasksUI } from "./Ddom.js";
+import { deletedTasksContainer, noDeletedTasksMessage } from "./Ddom.js";
 var Mission;
 (function (Mission) {
     Mission["restore"] = "restore";
@@ -53,7 +53,7 @@ export function createDeletedTaskUI(taskName, group, state) {
     btnRow.append(restoreBtn, deleteBtn);
     // assemble card
     card.append(topRow, btnRow);
-    deletedTasksList === null || deletedTasksList === void 0 ? void 0 : deletedTasksList.append(card);
+    deletedTasksContainer === null || deletedTasksContainer === void 0 ? void 0 : deletedTasksContainer.append(card);
 }
 export function removeDUI(taskName) {
     const parent = document.querySelector(`[name="${taskName}"]`);
@@ -62,8 +62,8 @@ export function removeDUI(taskName) {
     }
 }
 export function checkDeletedTasks(state) {
-    if (!noDeletedTasksUI)
+    if (!noDeletedTasksMessage)
         return;
     const show = state !== undefined ? state : checkDeletedTasksLS();
-    noDeletedTasksUI.style.display = show ? "block" : "none";
+    noDeletedTasksMessage.style.display = show ? "block" : "none";
 }

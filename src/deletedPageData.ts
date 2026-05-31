@@ -1,12 +1,12 @@
-import { Group, State } from "./types.js";
-import { deletedTasksList } from "./deletedPageDom.js";
+import { deletedTasksContainer } from "./deletedPageDom.js";
 import { checkDeletedTasks, createDeletedTaskUI } from "./deletedPageUi.js";
+import { Group, type State } from "./types.js";
 // import {} from "./dom.js";
 // import {} from "./ui.js";
 
 export function renderTasksSS() {
-	if (deletedTasksList) {
-		deletedTasksList.innerHTML = "";
+	if (deletedTasksContainer) {
+		deletedTasksContainer.innerHTML = "";
 	}
 	const all = JSON.parse(sessionStorage.getItem("all") || "[]");
 	const completed = JSON.parse(sessionStorage.getItem("completed") || "[]");
@@ -23,22 +23,17 @@ export function renderTasksSS() {
 }
 
 export function removeRemovedTask(taskName: string, group: Group) {
-	const tasksSS: [string, State][] = JSON.parse(
-		sessionStorage.getItem(group) || "[]",
-	);
+	const tasksSS: [string, State][] = JSON.parse(sessionStorage.getItem(group) || "[]");
 	console.log(tasksSS);
-	sessionStorage.setItem(
-		group,
-		JSON.stringify(tasksSS.filter((task) => task[0] !== taskName)),
-	);
+	sessionStorage.setItem(group, JSON.stringify(tasksSS.filter((task) => task[0] !== taskName)));
 }
 
 export function searchDelTasks(SearchVal: string) {
 	const all = JSON.parse(sessionStorage.getItem("all") || "[]");
 	const completed = JSON.parse(sessionStorage.getItem("completed") || "[]");
 	const tasks = JSON.parse(sessionStorage.getItem("tasks") || "[]");
-	if (!deletedTasksList) return;
-	deletedTasksList.innerHTML = "";
+	if (!deletedTasksContainer) return;
+	deletedTasksContainer.innerHTML = "";
 	const tasksArray: Array<[string, Group, State]> = [];
 	all.forEach((task: [string, State]) => {
 		if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {

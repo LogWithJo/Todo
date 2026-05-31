@@ -1,5 +1,5 @@
 import { Group } from "./Ddom.js";
-import { taskList } from "./dom.js";
+import { taskListContainer } from "./dom.js";
 import { addTaskUI, checkTasks, renderTasks } from "./ui.js";
 export var State;
 (function (State) {
@@ -114,7 +114,7 @@ window.addEventListener("load", () => {
 // Search
 export function searchTasks(SearchVal) {
     const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    taskList.innerHTML = "";
+    taskListContainer.innerHTML = "";
     const tasksArray = [];
     tasks.forEach((task) => {
         if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {
@@ -138,6 +138,8 @@ export function removeAllCompletedTasks() {
     const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const updatedTasks = tasks.filter((task) => task[1] === State.uncompleted);
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    if (!taskListContainer) return;
+    taskListContainer.innerHTML = "";
     updatedTasks.forEach((task) => {
         addTaskUI(task[0], task[1], task[2]);
     });

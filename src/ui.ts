@@ -1,41 +1,27 @@
 import { showIcon } from "./api.js";
-import {
-	checkTasksLS,
-	getDate,
-	reorderTasksLocalStorage,
-} from "./data.js";
-import {
-	addBtn,
-	errorMsg,
-	noTasksUI,
-	taskInput,
-	taskList,
-	undoBtn,
-} from "./dom.js";
-import {Show, Choose, State, RemoveType } from './types.js'
-
+import { checkTasksLS, getDate, reorderTasksLocalStorage } from "./data.js";
+import { addTaskButton, emptyTasksMessage, errorMessage, newTaskInput, taskListContainer, undoButton } from "./dom.js";
+import { Choose, RemoveType, Show, State } from "./types.js";
 
 let dragSource: HTMLElement | null = null;
-let taskListContainerInitialized = false;
+let taskListContainerContainerInitialized = false;
 
 export function showErrors(show: Show) {
-	if (errorMsg instanceof HTMLElement) {
-		errorMsg.classList.remove("hidden");
+	if (errorMessage instanceof HTMLElement) {
+		errorMessage.classList.remove("hidden");
 	}
 	if (show === Show.empty) {
-		errorMsg.textContent = "write a task";
+		errorMessage.textContent = "write a task";
 	} else {
-		errorMsg.textContent = "the task added already";
+		errorMessage.textContent = "the task added already";
 	}
-	addBtn?.removeAttribute("disabled");
-	taskInput?.removeAttribute("disabled");
+	addTaskButton?.removeAttribute("disabled");
+	newTaskInput?.removeAttribute("disabled");
 }
 
 function updateTaskOrderFromDOM() {
-	if (!taskList) return;
-	const newOrder = Array.from(taskList.children).map(
-		(child) => (child as HTMLElement).getAttribute("name") || "",
-	);
+	if (!taskListContainer) return;
+	const newOrder = Array.from(taskListContainer.children).map((child) => (child as HTMLElement).getAttribute("name") || "");
 	reorderTasksLocalStorage(newOrder);
 }
 
@@ -75,16 +61,14 @@ function onDrop(this: HTMLElement, event: DragEvent) {
 	if (!sourceName) return;
 
 	if (sourceName === this.getAttribute("name")) return;
-	const sourceElement = document.querySelector(
-		`[name="${sourceName}"]`,
-	) as HTMLElement | null;
-	if (sourceElement && taskList) {
+	const sourceElement = document.querySelector(`[name="${sourceName}"]`) as HTMLElement | null;
+	if (sourceElement && taskListContainer) {
 		const rect = this.getBoundingClientRect();
 		const insertBefore = event.clientY < rect.top + rect.height / 2;
 		if (insertBefore) {
-			taskList.insertBefore(sourceElement, this);
+			taskListContainer.insertBefore(sourceElement, this);
 		} else {
-			taskList.insertBefore(sourceElement, this.nextSibling);
+			taskListContainer.insertBefore(sourceElement, this.nextSibling);
 		}
 		updateTaskOrderFromDOM();
 	}
@@ -100,23 +84,21 @@ export function attachDragAndDrop(taskItem: HTMLElement) {
 }
 
 export function setupTaskListContainerDrag() {
-	if (!taskList || taskListContainerInitialized) return;
-	taskList.addEventListener("dragover", (event) => {
+	if (!taskListContainer || taskListContainerContainerInitialized) return;
+	taskListContainer.addEventListener("dragover", (event) => {
 		event.preventDefault();
 	});
-	taskList.addEventListener("drop", (event) => {
+	taskListContainer.addEventListener("drop", (event) => {
 		event.preventDefault();
 		const sourceName = event.dataTransfer?.getData("text/plain");
-		if (!sourceName || !taskList) return;
-		const sourceElement = document.querySelector(
-			`[name="${sourceName}"]`,
-		) as HTMLElement | null;
-		if (sourceElement && event.target === taskList) {
-			taskList.appendChild(sourceElement);
+		if (!sourceName || !taskListContainer) return;
+		const sourceElement = document.querySelector(`[name="${sourceName}"]`) as HTMLElement | null;
+		if (sourceElement && event.target === taskListContainer) {
+			taskListContainer.appendChild(sourceElement);
 			updateTaskOrderFromDOM();
 		}
 	});
-	taskListContainerInitialized = true;
+	taskListContainerContainerInitialized = true;
 }
 
 export async function addTaskUI(taskName: string, state: State, date: string) {
@@ -135,8 +117,7 @@ export async function addTaskUI(taskName: string, state: State, date: string) {
 	const checkI = document.createElement("i");
 	const removeI = document.createElement("i");
 	const icon = await showIcon(taskName);
-	editDiv.className =
-		"font-bold p-2 rounded-full cursor-pointer text-white flex items-center justify-center bg-yellow-500";
+	editDiv.className = "font-bold p-2 rounded-full cursor-pointer text-white flex items-center justify-center bg-yellow-500";
 	editI.id = Choose.edit;
 	editI.className = "fa-solid fa-pen";
 	editI.setAttribute("data-src", taskName);
@@ -150,18 +131,15 @@ export async function addTaskUI(taskName: string, state: State, date: string) {
 			dateDiv.textContent = `task ends in ${-getDate(date)} days`;
 		}
 	}
-	burgerDiv.className =
-		"cursor-move flex justify-center items-center text-gray-600";
+	burgerDiv.className = "cursor-move flex justify-center items-center text-gray-600";
 	burgerI.className = "fa-solid fa-bars";
 	nameIconDiv.className = "flex gap-3 items-center h-full";
 	iconDiv.className = `py-1 px-2 shadow-2xl flex justify-center items-center font-bold rounded-full`;
 	parentDiv.setAttribute("name", taskName);
 	parentDiv.setAttribute("state", state);
-	parentDiv.className =
-		"flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
-	nameDiv.className =
-		"px-2 font-bold capitalize flex-1 flex justify-center items-center";
-	nameDiv.id = "title";
+	parentDiv.className = "flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
+	nameDiv.className = "px-2 font-bold capitalize flex-1 flex justify-center items-center";
+	nameDiv.id = "taskTitle";
 	nameDiv.textContent = taskName;
 	iconsDiv.className = "flex gap-3 items-center justify-center";
 	if (state === State.completed) {
@@ -177,10 +155,8 @@ export async function addTaskUI(taskName: string, state: State, date: string) {
 	removeI.setAttribute("data-date", date);
 	removeI.id = Choose.remove;
 	removeI.className = "fa-solid fa-trash";
-	checkDiv.className =
-		"font-bold rounded-full cursor-pointer text-white flex items-center justify-center";
-	removeDiv.className =
-		"font-bold bg-red-400 rounded-full cursor-pointer text-white p-2 flex items-center justify-center";
+	checkDiv.className = "font-bold rounded-full cursor-pointer text-white flex items-center justify-center";
+	removeDiv.className = "font-bold bg-red-400 rounded-full cursor-pointer text-white p-2 flex items-center justify-center";
 	if (state === State.completed) {
 		parentDiv.classList.toggle("bg-transparent");
 		parentDiv.classList.toggle("bg-[rgba(255,194,209,0.3)]");
@@ -199,14 +175,14 @@ export async function addTaskUI(taskName: string, state: State, date: string) {
 	iconsDiv.append(editDiv, removeDiv, burgerDiv);
 	parentDiv.append(nameIconDiv, iconsDiv);
 	if (state === State.completed) {
-		taskList?.append(parentDiv);
+		taskListContainer?.append(parentDiv);
 	} else {
-		taskList?.prepend(parentDiv);
+		taskListContainer?.prepend(parentDiv);
 	}
 	attachDragAndDrop(parentDiv);
 	setupTaskListContainerDrag();
-	addBtn?.removeAttribute("disabled");
-	taskInput?.removeAttribute("disabled");
+	addTaskButton?.removeAttribute("disabled");
+	newTaskInput?.removeAttribute("disabled");
 }
 
 export function removeUI(taskName: string) {
@@ -218,15 +194,9 @@ export function removeUI(taskName: string) {
 
 export function checkedUI(taskName: string) {
 	const parent = document.querySelector(`[name="${taskName}"]`);
-	const checkI = document.querySelector(
-		`[name="${taskName}"] [data-src="${taskName}"]`,
-	);
-	const text = document.querySelector(`[name="${taskName}"] #title`);
-	if (
-		text instanceof HTMLElement &&
-		parent instanceof HTMLElement &&
-		checkI instanceof HTMLElement
-	) {
+	const checkI = document.querySelector(`[name="${taskName}"] [data-src="${taskName}"]`);
+	const text = document.querySelector(`[name="${taskName}"] #taskTitle`);
+	if (text instanceof HTMLElement && parent instanceof HTMLElement && checkI instanceof HTMLElement) {
 		parent.classList.toggle("bg-[rgba(255,194,209,0.3)]");
 		parent.classList.toggle("bg-transparent");
 		text.style.textDecoration = "line-through";
@@ -236,7 +206,7 @@ export function checkedUI(taskName: string) {
 	const t = parent;
 	parent?.remove();
 	if (t) {
-		taskList?.appendChild(t);
+		taskListContainer?.appendChild(t);
 	}
 }
 
@@ -247,30 +217,30 @@ export function renderTasks(tasks: [string, State, string][]) {
 }
 
 // export function showUndoBtn() {
-// 	undoBtn.classList.remove("hidden");
+// 	undoButton.classList.remove("hidden");
 // 	document.body.addEventListener("click", () => {
-// 		undoBtn.classList.add("hidden")
+// 		undoButton.classList.add("hidden")
 // 	}, {once: true})
 // 	setTimeout(() => {
-// 		undoBtn.classList.add("hidden");
+// 		undoButton.classList.add("hidden");
 // 	}, 5000);
 // }
 
 export function showUndoBtn() {
-	undoBtn.classList.remove("hidden");
+	undoButton.classList.remove("hidden");
 
 	const hideUndo = (e: MouseEvent) => {
 		const target = e.target as HTMLElement;
 
 		if (target.closest("#undo-btn")) return;
 
-		undoBtn.classList.add("hidden");
+		undoButton.classList.add("hidden");
 
 		document.body.removeEventListener("click", hideUndo);
 	};
 
 	setTimeout(() => {
-		undoBtn.classList.add("hidden");
+		undoButton.classList.add("hidden");
 		document.body.removeEventListener("click", hideUndo);
 	}, 5000);
 
@@ -280,13 +250,13 @@ export function showUndoBtn() {
 }
 
 export function checkTasks(state?: boolean) {
-	if (!noTasksUI) return;
+	if (!emptyTasksMessage) return;
 	const show = state !== undefined ? state : checkTasksLS();
-	noTasksUI.style.display = show ? "block" : "none";
+	emptyTasksMessage.style.display = show ? "block" : "none";
 }
 
 export function changeTag(elements: HTMLElement, newTaskName?: string) {
-	const element = elements.querySelector(`#title`);
+	const element = elements.querySelector(`#taskTitle`);
 
 	if (!(element instanceof HTMLElement)) return;
 

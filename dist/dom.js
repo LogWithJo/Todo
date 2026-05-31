@@ -2,21 +2,21 @@ import { Group } from "./Ddom.js";
 import { addTaskToLocalStorage, auth, RemoveType, removeAllCompletedTasks, removeAllTasks, removeTaskLocalStorage, returnRemovedTask, State, saveRemovedTask, searchTasks, stateTaskLocalStorage, renameTask, } from "./data.js";
 import { addTaskUI, changeTag, checkedUI, checkTasks, removeUI, renderTasks, showErrors, showUndoBtn, } from "./ui.js";
 // dom
-export const taskInput = document.getElementById("taskInput");
-export const addBtn = document.getElementById("addBtn");
-export const taskList = document.getElementById("taskList");
-export const errorMsg = document.getElementById("errorMsg");
-export const searchInput = document.getElementById("searchInput");
-export const deleteAllBtn = document.getElementById("deleteAllBtn");
-export const deleteCompletedBtn = document.getElementById("deleteCompletedBtn");
-export const undoBtn = document.getElementById("undoBtn");
-export const noTasksUI = document.getElementById("noTasksUI");
-export const dateInput = document.getElementById("dateInput");
-taskInput === null || taskInput === void 0 ? void 0 : taskInput.addEventListener("keydown", (e) => {
+export const newTaskInput = document.getElementById("newTaskInput");
+export const addTaskButton = document.getElementById("addTaskButton");
+export const taskListContainer = document.getElementById("taskListContainer");
+export const errorMessage = document.getElementById("errorMessage");
+export const searchTaskInput = document.getElementById("searchTaskInput");
+export const deleteAllButton = document.getElementById("deleteAllButton");
+export const deleteCompletedButton = document.getElementById("deleteCompletedButton");
+export const undoButton = document.getElementById("undoButton");
+export const emptyTasksMessage = document.getElementById("emptyTasksMessage");
+export const dueDateInput = document.getElementById("dueDateInput");
+newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        addBtn === null || addBtn === void 0 ? void 0 : addBtn.setAttribute("disabled", "true");
-        const taskName = taskInput.value;
-        taskInput.value = "";
+        addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.setAttribute("disabled", "true");
+        const taskName = newTaskInput.value;
+        newTaskInput.value = "";
         if (taskName.length < 1) {
             showErrors(Show.empty);
             return;
@@ -25,10 +25,10 @@ taskInput === null || taskInput === void 0 ? void 0 : taskInput.addEventListener
             showErrors(Show.repeated);
             return;
         }
-        addTaskUI(taskName, State.uncompleted, dateInput.value);
-        addTaskToLocalStorage(taskName, dateInput.value);
+        addTaskUI(taskName, State.uncompleted, dueDateInput.value);
+        addTaskToLocalStorage(taskName, dueDateInput.value);
         checkTasks();
-        dateInput.value = "";
+        dueDateInput.value = "";
     }
 });
 export var Show;
@@ -36,24 +36,24 @@ export var Show;
     Show["empty"] = "empty";
     Show["repeated"] = "repeated";
 })(Show || (Show = {}));
-addBtn === null || addBtn === void 0 ? void 0 : addBtn.addEventListener("click", () => {
+addTaskButton === null || addTaskButton === void 0 ? void 0 : addTaskButton.addEventListener("click", () => {
     var _a;
-    taskInput === null || taskInput === void 0 ? void 0 : taskInput.setAttribute("disabled", "true");
-    const taskName = (_a = taskInput === null || taskInput === void 0 ? void 0 : taskInput.value) !== null && _a !== void 0 ? _a : "";
-    if (taskInput instanceof HTMLInputElement) {
-        taskInput.value = "";
+    newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.setAttribute("disabled", "true");
+    const taskName = (_a = newTaskInput === null || newTaskInput === void 0 ? void 0 : newTaskInput.value) !== null && _a !== void 0 ? _a : "";
+    if (newTaskInput instanceof HTMLInputElement) {
+        newTaskInput.value = "";
         if (taskName.length < 1) {
             showErrors(Show.empty);
-            addTaskToLocalStorage(taskName, dateInput.value);
+            addTaskToLocalStorage(taskName, dueDateInput.value);
             return;
         }
         if (auth(taskName)) {
             showErrors(Show.repeated);
             return;
         }
-        addTaskUI(taskName, State.uncompleted, dateInput.value);
+        addTaskUI(taskName, State.uncompleted, dueDateInput.value);
         checkTasks();
-        dateInput.value = "";
+        dueDateInput.value = "";
     }
 });
 export var Choose;
@@ -63,7 +63,7 @@ export var Choose;
     Choose["remove"] = "remove";
     Choose["edit"] = "edit";
 })(Choose || (Choose = {}));
-taskList === null || taskList === void 0 ? void 0 : taskList.addEventListener("click", (e) => {
+taskListContainer === null || taskListContainer === void 0 ? void 0 : taskListContainer.addEventListener("click", (e) => {
     const target = e.target;
     const taskName = target.getAttribute("data-src") || "";
     const date = target.getAttribute("data-date") || "";
@@ -76,8 +76,8 @@ taskList === null || taskList === void 0 ? void 0 : taskList.addEventListener("c
         removeUI(taskName);
         saveRemovedTask(Group.tasks, taskName);
         removeTaskLocalStorage(taskName);
-        undoBtn.setAttribute("data-task-state", Group.tasks);
-        undoBtn.setAttribute("data-task-name", taskName);
+        undoButton.setAttribute("data-task-state", Group.tasks);
+        undoButton.setAttribute("data-task-name", taskName);
         showUndoBtn();
         checkTasks();
     }
@@ -89,64 +89,89 @@ taskList === null || taskList === void 0 ? void 0 : taskList.addEventListener("c
         stateTaskLocalStorage(taskName, State.uncompleted);
     }
     else if (target.id === Choose.edit) {
-        // ui
-        const parent = target.closest("[name]");
-        changeTag(parent);
-        addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                // UI
-                const textarea = document.querySelector("[textarea]");
-                const newTaskName = textarea.value;
-                parent.remove();
-                // addTaskUI(newTaskName, state, date)
-                textarea.removeAttribute("[textarea]");
-                // console.log(newTaskName)
-                // Data
-                taskList.innerHTML = "";
-                renameTask(taskName, newTaskName);
-                const taskLS = JSON.parse(localStorage.getItem("tasks") || "[]");
-                console.log(taskLS);
-                renderTasks(taskLS);
+        const taskItem = target.closest("[name]");
+        if (!taskItem)
+            return;
+        const currentTaskName = taskItem.getAttribute("name") || "";
+        const titleElement = taskItem.querySelector("#taskTitle");
+        if (!titleElement || taskItem.querySelector("textarea"))
+            return;
+        const textarea = document.createElement("textarea");
+        textarea.value = currentTaskName;
+        textarea.className = titleElement.className;
+        textarea.id = "taskTitle";
+        textarea.setAttribute("textarea", "true");
+        textarea.rows = 1;
+        titleElement.replaceWith(textarea);
+        textarea.focus();
+        textarea.setSelectionRange(currentTaskName.length, currentTaskName.length);
+        const commitEdit = (e) => {
+            if (e.key !== "Enter")
+                return;
+            const newTaskName = textarea.value.trim();
+            if (newTaskName.length < 1) {
+                showErrors(Show.empty);
+                return;
             }
-        });
-        // data
+            if (newTaskName !== currentTaskName && auth(newTaskName)) {
+                showErrors(Show.repeated);
+                return;
+            }
+            renameTask(currentTaskName, newTaskName);
+            const updatedTitle = document.createElement("div");
+            updatedTitle.className = titleElement.className;
+            updatedTitle.id = "taskTitle";
+            updatedTitle.textContent = newTaskName;
+            if (state === State.completed) {
+                updatedTitle.style.textDecoration = "line-through";
+            }
+            textarea.replaceWith(updatedTitle);
+            taskItem.setAttribute("name", newTaskName);
+            taskItem.querySelectorAll("[data-src]").forEach((element) => {
+                if (element instanceof HTMLElement) {
+                    element.setAttribute("data-src", newTaskName);
+                }
+            });
+            textarea.removeEventListener("keydown", commitEdit);
+        };
+        textarea.addEventListener("keydown", commitEdit);
     }
 });
-searchInput.addEventListener("input", () => {
-    searchTasks(searchInput.value);
+searchTaskInput.addEventListener("input", () => {
+    searchTasks(searchTaskInput.value);
 });
-deleteAllBtn.addEventListener("click", () => {
+deleteAllButton.addEventListener("click", () => {
     // UI
-    taskList.innerHTML = "";
+    taskListContainer.innerHTML = "";
     // Data
     saveRemovedTask(Group.all);
     removeAllTasks();
     showUndoBtn();
-    undoBtn.setAttribute("data-task-state", Group.all);
+    undoButton.setAttribute("data-task-state", Group.all);
     checkTasks();
 });
-deleteCompletedBtn.addEventListener("click", () => {
+deleteCompletedButton.addEventListener("click", () => {
     // UI
-    taskList.innerHTML = "";
+    taskListContainer.innerHTML = "";
     // Data
     saveRemovedTask(Group.completed);
     removeAllCompletedTasks();
     showUndoBtn();
-    undoBtn.setAttribute("data-task-state", Group.completed);
+    undoButton.setAttribute("data-task-state", Group.completed);
     checkTasks();
 });
-undoBtn.addEventListener("click", () => {
-    undoBtn.classList.add("hidden");
-    const taskState = undoBtn.getAttribute("data-task-state");
-    const taskName = undoBtn.getAttribute("data-task-name");
+undoButton.addEventListener("click", () => {
+    undoButton.classList.add("hidden");
+    const taskState = undoButton.getAttribute("data-task-state");
+    const taskName = undoButton.getAttribute("data-task-name");
     if (!taskState)
         return;
     returnRemovedTask(taskState, RemoveType.undo, taskName || undefined);
     checkTasks();
-    // const removedTask: [string, State][] = JSON.parse(undoBtn.getAttribute("data-src") || "")
+    // const removedTask: [string, State][] = JSON.parse(undoButton.getAttribute("data-src") || "")
     // const inner = removedTask[0]
     // returnRemovedTask(removedTask)
     // addTaskUI(inner[0], inner[1])
-    // undoBtn.removeAttribute("disabled")
-    // undoBtn.classList.add("hidden")
+    // undoButton.removeAttribute("disabled")
+    // undoButton.classList.add("hidden")
 });
