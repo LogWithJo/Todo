@@ -59,37 +59,32 @@ function deletedTasksPopupEvent(e: MouseEvent) {
 
 function deletedTasksContainerEvent(e: MouseEvent) {
 	const target = e.target as HTMLElement;
-	const element = target.closest("[data-cardName]") as HTMLElement;
-	const restoreBtn = target.closest(`#${Mission.restore}`);
-	const deleteBtn = target.closest(`#${Mission.delete}`);
+	const element = target.closest("[data-cardName]") as HTMLElement | null;
+	const restoreBtn = target.closest(`#${Mission.restore}`) as HTMLElement | null;
+	const deleteBtn = target.closest(`#${Mission.delete}`) as HTMLElement | null;
+	if (!element) return;
 
-	const taskName: string = element?.getAttribute("data-cardName") || "fail";
+	const taskName: string = element.getAttribute("data-cardName") || "fail";
 	const group: Group =
-		element?.dataset.group === Group.all
+		element.dataset.group === Group.all
 			? Group.all
-			: element?.dataset.group === Group.completed
+			: element.dataset.group === Group.completed
 				? Group.completed
-				: element?.dataset.group === Group.tasks
+				: element.dataset.group === Group.tasks
 					? Group.tasks
 					: Group.all;
-	// const state: State =
-	// 	element?.dataset.state === State.completed
-	// 		? State.completed
-	// 		: element.dataset.state === State.uncompleted
-	// 			? State.uncompleted
-	// 			: State.uncompleted;
+
 	if (restoreBtn) {
-		// UI
 		removeDUI(taskName);
-		// Data
 		returnRemovedTask(group, RemoveType.return, taskName);
 		checkTasks();
 		checkDeletedTasks();
+		element.remove();
 	} else if (deleteBtn) {
 		removeRemovedTask(taskName, group);
 		checkDeletedTasks();
+		element.remove();
 	}
-	element.remove();
 }
 
 function restoreAllDeletedTasksButtonEvent() {

@@ -1,6 +1,7 @@
-import { deletedTasksContainer } from "./deletedPageDom.js";
 import { checkDeletedTasks, createDeletedTaskUI } from "./deletedPageUi.js";
 import { Group, type State } from "./types.js";
+
+const deletedTasksContainer = document.getElementById("deletedTasksContainer") as HTMLDivElement | null;
 // import {} from "./dom.js";
 // import {} from "./ui.js";
 

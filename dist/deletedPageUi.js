@@ -1,5 +1,5 @@
-import { checkDeletedTasksLS } from "./Ddata.js";
-import { deletedTasksList, noDeletedTasksUI } from "./Ddom.js";
+const deletedTasksContainer = document.getElementById("deletedTasksContainer");
+const noDeletedTasksMessage = document.getElementById("noDeletedTasksMessage");
 var Mission;
 (function (Mission) {
     Mission["restore"] = "restore";
@@ -12,15 +12,13 @@ export function createDeletedTaskUI(taskName, group, state) {
     card.setAttribute("data-cardName", taskName);
     card.setAttribute("data-group", group);
     card.setAttribute("data-state", state);
-    card.className =
-        "bg-[rgba(255,194,209,0.3)] rounded-3xl p-5 flex flex-col gap-4";
+    card.className = "bg-[rgba(255,194,209,0.3)] rounded-3xl p-5 flex flex-col gap-4";
     // top row
     const topRow = document.createElement("div");
     topRow.className = "flex items-center gap-3";
     // icon circle
     const iconCircle = document.createElement("div");
-    iconCircle.className =
-        "w-14 h-14 rounded-full text-white flex items-center justify-center text-xl";
+    iconCircle.className = "w-14 h-14 rounded-full text-white flex items-center justify-center text-xl";
     const icon = document.createElement("i");
     icon.className = "fa-solid fa-code";
     iconCircle.append(icon);
@@ -37,23 +35,25 @@ export function createDeletedTaskUI(taskName, group, state) {
     // restore button
     const restoreBtn = document.createElement("button");
     restoreBtn.type = "button";
-    restoreBtn.className =
-        "flex-1 bg-[rgba(255,194,209,0.3)] cursor-pointer text-white py-3 rounded-2xl font-medium";
+    restoreBtn.className = "flex-1 bg-[rgba(255,194,209,0.3)] cursor-pointer text-white py-3 rounded-2xl font-medium";
     restoreBtn.textContent = "Restore";
     restoreBtn.id = Mission.restore;
     restoreBtn.setAttribute("data-name", taskName);
     // delete forever button
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
-    deleteBtn.className =
-        "flex-1 bg-[rgba(255,194,209,0.3)] text-white py-3 rounded-2xl font-medium";
+    deleteBtn.className = "flex-1 bg-[rgba(255,194,209,0.3)] text-white py-3 rounded-2xl font-medium";
     deleteBtn.textContent = "Delete Forever";
     deleteBtn.setAttribute("data-name", taskName);
     deleteBtn.id = Mission.delete;
     btnRow.append(restoreBtn, deleteBtn);
     // assemble card
     card.append(topRow, btnRow);
-    deletedTasksList === null || deletedTasksList === void 0 ? void 0 : deletedTasksList.append(card);
+    deletedTasksContainer === null || deletedTasksContainer === void 0 ? void 0 : deletedTasksContainer.append(card);
+    const parent = document.querySelector(`[name="${taskName}"]`);
+    if (parent instanceof HTMLElement) {
+        parent.remove();
+    }
 }
 export function removeDUI(taskName) {
     const parent = document.querySelector(`[name="${taskName}"]`);
@@ -61,9 +61,16 @@ export function removeDUI(taskName) {
         parent.remove();
     }
 }
+export function checkDeletedTasksLS() {
+    const tasks = JSON.parse(sessionStorage.getItem("tasks") || "[]");
+    const alls = JSON.parse(sessionStorage.getItem("all") || "[]");
+    const completed = JSON.parse(sessionStorage.getItem("completed") || "[]");
+    const all = [...tasks, ...alls, ...completed];
+    return all.length <= 0;
+}
 export function checkDeletedTasks(state) {
-    if (!noDeletedTasksUI)
+    if (!noDeletedTasksMessage)
         return;
     const show = state !== undefined ? state : checkDeletedTasksLS();
-    noDeletedTasksUI.style.display = show ? "block" : "none";
+    noDeletedTasksMessage.style.display = show ? "block" : "none";
 }

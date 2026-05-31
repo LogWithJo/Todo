@@ -8,8 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { showIcon } from "./api.js";
-import { checkTasksLS, getDate, reorderTasksLocalStorage, State, } from "./data.js";
-import { addTaskButton, Choose, errorMessage, emptyTasksMessage, Show, newTaskInput, taskListContainer, undoButton, } from "./dom.js";
+import { checkTasksLS, getDate, reorderTasksLocalStorage } from "./data.js";
+import { addTaskButton, emptyTasksMessage, errorMessage, newTaskInput, taskListContainer, undoButton } from "./dom.js";
+import { Choose, Show, State } from "./types.js";
 let dragSource = null;
 let taskListContainerContainerInitialized = false;
 export function showErrors(show) {
@@ -123,8 +124,7 @@ export function addTaskUI(taskName, state, date) {
         const checkI = document.createElement("i");
         const removeI = document.createElement("i");
         const icon = yield showIcon(taskName);
-        editDiv.className =
-            "font-bold p-2 rounded-full cursor-pointer text-white flex items-center justify-center bg-yellow-500";
+        editDiv.className = "font-bold p-2 rounded-full cursor-pointer text-white flex items-center justify-center bg-yellow-500";
         editI.id = Choose.edit;
         editI.className = "fa-solid fa-pen";
         editI.setAttribute("data-src", taskName);
@@ -139,18 +139,15 @@ export function addTaskUI(taskName, state, date) {
                 dateDiv.textContent = `task ends in ${-getDate(date)} days`;
             }
         }
-        burgerDiv.className =
-            "cursor-move flex justify-center items-center text-gray-600";
+        burgerDiv.className = "cursor-move flex justify-center items-center text-gray-600";
         burgerI.className = "fa-solid fa-bars";
         nameIconDiv.className = "flex gap-3 items-center h-full";
         iconDiv.className = `py-1 px-2 shadow-2xl flex justify-center items-center font-bold rounded-full`;
         parentDiv.setAttribute("name", taskName);
         parentDiv.setAttribute("state", state);
-        parentDiv.className =
-            "flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
-        nameDiv.className =
-            "px-2 font-bold capitalize flex-1 flex justify-center items-center";
-        nameDiv.id = "title";
+        parentDiv.className = "flex items-center justify-between w-full p-3 bg-transparent hover:bg-[rgba(257,196,211,0.5)] rounded-2xl";
+        nameDiv.className = "px-2 font-bold capitalize flex-1 flex justify-center items-center";
+        nameDiv.id = "taskTitle";
         nameDiv.textContent = taskName;
         iconsDiv.className = "flex gap-3 items-center justify-center";
         if (state === State.completed) {
@@ -167,10 +164,8 @@ export function addTaskUI(taskName, state, date) {
         removeI.setAttribute("data-date", date);
         removeI.id = Choose.remove;
         removeI.className = "fa-solid fa-trash";
-        checkDiv.className =
-            "font-bold rounded-full cursor-pointer text-white flex items-center justify-center";
-        removeDiv.className =
-            "font-bold bg-red-400 rounded-full cursor-pointer text-white p-2 flex items-center justify-center";
+        checkDiv.className = "font-bold rounded-full cursor-pointer text-white flex items-center justify-center";
+        removeDiv.className = "font-bold bg-red-400 rounded-full cursor-pointer text-white p-2 flex items-center justify-center";
         if (state === State.completed) {
             parentDiv.classList.toggle("bg-transparent");
             parentDiv.classList.toggle("bg-[rgba(255,194,209,0.3)]");
@@ -211,9 +206,7 @@ export function checkedUI(taskName) {
     const parent = document.querySelector(`[name="${taskName}"]`);
     const checkI = document.querySelector(`[name="${taskName}"] [data-src="${taskName}"]`);
     const text = document.querySelector(`[name="${taskName}"] #taskTitle`);
-    if (text instanceof HTMLElement &&
-        parent instanceof HTMLElement &&
-        checkI instanceof HTMLElement) {
+    if (text instanceof HTMLElement && parent instanceof HTMLElement && checkI instanceof HTMLElement) {
         parent.classList.toggle("bg-[rgba(255,194,209,0.3)]");
         parent.classList.toggle("bg-transparent");
         text.style.textDecoration = "line-through";
@@ -263,7 +256,7 @@ export function checkTasks(state) {
     const show = state !== undefined ? state : checkTasksLS();
     emptyTasksMessage.style.display = show ? "block" : "none";
 }
-export function changeTag(elements, newTaskName) {
+export function changeTag(elements) {
     const element = elements.querySelector(`#taskTitle`);
     if (!(element instanceof HTMLElement))
         return;
@@ -272,8 +265,8 @@ export function changeTag(elements, newTaskName) {
     for (const attr of element.attributes) {
         newElement.setAttribute(attr.name, attr.value);
     }
-    // newElement may be a HTMLTextAreaElement when creating a textarea; cast to access rows
     newElement.rows = 1;
+    newElement.value = element.textContent || "";
     newElement.setAttribute("textarea", "true");
     element.replaceWith(newElement);
 }

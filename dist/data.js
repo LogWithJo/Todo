@@ -1,11 +1,6 @@
-import { Group } from "./Ddom.js";
-import { taskList } from "./dom.js";
+import { taskListContainer, updateGridNumbers } from "./dom.js";
+import { Group, RemoveType, State } from "./types.js";
 import { addTaskUI, checkTasks, renderTasks } from "./ui.js";
-export var State;
-(function (State) {
-    State["uncompleted"] = "uncompleted";
-    State["completed"] = "completed";
-})(State || (State = {}));
 export function addTaskToLocalStorage(taskName, date) {
     const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     tasks.push([taskName, State.uncompleted, date]);
@@ -37,11 +32,6 @@ export function saveRemovedTask(state, taskName) {
         sessionStorage.setItem("tasks", JSON.stringify([...tasksSessionStorage, removedTask[0]]));
     }
 }
-export var RemoveType;
-(function (RemoveType) {
-    RemoveType["undo"] = "undo";
-    RemoveType["return"] = "return";
-})(RemoveType || (RemoveType = {}));
 export function returnRemovedTask(group, type, taskName) {
     const tasksLS = JSON.parse(localStorage.getItem("tasks") || "[]");
     if (group === Group.all) {
@@ -69,7 +59,7 @@ export function returnRemovedTask(group, type, taskName) {
             renderTasks(tasksSS);
         }
         else if (type === RemoveType.return) {
-            const task = tasksSS.find((task) => task[0] === taskName) || ["taskName", State.completed, 'date'];
+            const task = tasksSS.find((task) => task[0] === taskName) || ["taskName", State.completed, "date"];
             const alls = [...tasksLS, task];
             localStorage.setItem("tasks", JSON.stringify(alls));
             sessionStorage.setItem("completed", JSON.stringify(tasksSS.filter((t) => t[0] !== taskName)));
@@ -97,7 +87,7 @@ export function reorderTasksLocalStorage(newOrder) {
     const reordered = newOrder
         .map((name) => {
         const state = taskMap.get(name);
-        return state ? [name, state, 'date'] : undefined;
+        return state ? [name, state, "date"] : undefined;
     })
         .filter((entry) => entry !== undefined);
     const remaining = tasks.filter((task) => !newOrder.includes(task[0]));
@@ -110,11 +100,12 @@ window.addEventListener("load", () => {
         addTaskUI(task[0], task[1], task[2]);
     });
     checkTasks();
+    updateGridNumbers();
 });
 // Search
 export function searchTasks(SearchVal) {
     const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    taskList.innerHTML = "";
+    taskListContainer.innerHTML = "";
     const tasksArray = [];
     tasks.forEach((task) => {
         if (task[0].toLowerCase().includes(SearchVal.toLowerCase())) {
@@ -163,7 +154,7 @@ export function auth(taskName) {
     const all = JSON.parse(sessionStorage.getItem("tasks") || "[]");
     const completed = JSON.parse(sessionStorage.getItem("tasks") || "[]");
     const allTasks = [...LS, ...all, ...completed];
-    const auth = allTasks.filter(task => task[0] === taskName);
+    const auth = allTasks.filter((task) => task[0] === taskName);
     if (auth.length === 0) {
         return false;
     }

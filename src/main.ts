@@ -1,4 +1,4 @@
-import { initEventListeners } from "./dom"
+import { initEventListeners } from "./dom.js"
 
 document.addEventListener("DOMContentLoaded", () => {
     initEventListeners()
