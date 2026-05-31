@@ -95,6 +95,7 @@ function addTaskButtonEvent() {
 			return;
 		}
 		addTaskUI(taskName, State.uncompleted, dueDateInput.value);
+		addTaskToLocalStorage(taskName, dueDateInput.value);
 		checkTasks();
 		updateGridNumbers();
 		dueDateInput.value = "";
