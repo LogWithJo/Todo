@@ -2,7 +2,7 @@
 
 A simple browser-based to-do list application built with TypeScript and vanilla DOM APIs.
 
-[Live demo →](https://logwihjo.github.io/Todo)
+[Live demo →](https://logwithjo.github.io/Todo)
 
 ## What was updated
 
