@@ -2,6 +2,8 @@
 
 A simple browser-based to-do list application built with TypeScript and vanilla DOM APIs.
 
+[Live demo →](https://logwihjo.github.io/Todo)
+
 ## What was updated
 
 - Renamed DOM `id` values to clearer names like `taskListContainer`, `newTaskInput`, `addTaskButton`, `taskTitle`, and deleted popup/button IDs.
