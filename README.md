@@ -1,59 +1,108 @@
 # To-do App
 
 A simple browser-based to-do list application built with TypeScript and vanilla DOM APIs.
-[Live demo →](https://logwithjo.github.io/Todo)
+
+[Live Demo →](https://logwithjo.github.io/Todo)
 
 ![App screenshot](./preview.png)
 
-![HTML](https://img.shields.io/badge/html-5)
-![Tailwind](https://img.shields.io/badge/tailwind-4)
+![HTML](https://img.shields.io/badge/HTML-5-orange)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-4-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
 ## About
 
 This was my first complete project in my TypeScript learning roadmap.
-The goal was to understand how TypeScript integrates with JavaScript.
-Looking back, I noticed some weaknesses in the project architecture, especially duplicated logic and poor code organization.
-This happened because I initially started with simple features and kept expanding the project without refactoring the older code.
-I thought about refactoring the project from scratch, but I felt it would be a poor use of time. I decided it would be more valuable to focus on learning better architecture practices in React instead.
 
+The main goal was to understand how TypeScript integrates with JavaScript and how type safety improves development.
+
+Looking back, I noticed some weaknesses in the project architecture, particularly duplicated logic and code organization issues. This happened because I initially started with simple features and gradually kept expanding the project without refactoring earlier code.
+
+I considered rebuilding the project from scratch, but I felt that would not be the best use of time. Instead, I decided to focus on learning better architectural patterns in React and applying those lessons to future projects.
+
+---
 
 ## Features
 
-- Add tasks with due dates
-- Search tasks
-- Mark tasks as completed and uncompleted
-- Delete tasks with undo support
-- Restore deleted tasks from the deleted tasks popup
-- Drag-and-drop task ordering
-- Task statistics grid with finished, pending, and deleted counts
-- Responsive design
-  
-## Built with
+* Add tasks with due dates
+* Search tasks
+* Mark tasks as completed or uncompleted
+* Delete tasks with undo support
+* Restore deleted tasks from a deleted-tasks popup
+* Drag-and-drop task ordering
+* View task statistics:
 
-- **Html 5** _ page structure
-- **CSS 3** — scoped styling
-- **Tailwindcss** _ better UI
-- **TypeScript** — type safety
+  * Finished tasks
+  * Pending tasks
+  * Deleted tasks
+* Responsive design
 
-## Getting started
-[Just Click here →](https://logwithjo.github.io/Todo)
- 
+---
 
+## Built With
 
-## Running the app
+* **HTML5** — page structure
+* **CSS3** — styling
+* **TailwindCSS** — UI design
+* **TypeScript** — type safety and application logic
 
-The app now includes a Node backend for task persistence.
+---
 
-- Install dependencies: `npm install`
-- Build TypeScript: `npm run build`
-- Start the backend server: `npm start`
+## Getting Started
 
-Open `http://localhost:3000` in your browser to use the app.
+Just open the live version:
 
-The project uses TypeScript source files under `src/` and outputs compiled code to `dist/`.
+[Launch App →](https://logwithjo.github.io/Todo)
 
-## Notes
+---
 
-- The edit functionality uses an inline textarea, and pressing `Enter` saves the renamed task.
-- The deleted tasks view uses a grid container for layout.
+## Project Structure
+
+```text
+To-do/
+├── .gitignore
+├── README.md
+├── index.html
+├── package.json
+├── package-lock.json
+├── server.js
+├── tasks.json
+├── tsconfig.json
+├── preview.png
+├── css/
+│   ├── all.min.css
+│   ├── style.css
+│   ├── task-completed.png
+│   └── john-towner-JgOeRuGD_Y4-unsplash.jpg
+│
+├── webfonts/
+│   ├── fa-brands-400.woff2
+│   ├── fa-regular-400.woff2
+│   ├── fa-solid-900.woff2
+│   └── fa-v4compatibility.woff2
+│
+└── src/
+    ├── api.ts
+    ├── data.ts
+    ├── deletedPageData.ts
+    ├── deletedPageDom.ts
+    ├── deletedPageUi.ts
+    ├── dom.ts
+    ├── main.ts
+    ├── types.ts
+    └── ui.ts
+```
+
+---
+
+## What I Learned
+
+* Better project organization and architecture fundamentals
+* The importance of avoiding duplicated logic
+* Writing cleaner code for easier maintenance and future upgrades
+* Understanding how TypeScript works alongside JavaScript
+* Patience during development
+
+One of the biggest lessons I learned was not rushing to finish a project just to see the final result. In previous projects, rushing usually left me feeling unsatisfied. For the first time, I took more time with the process, and I’m genuinely happy with the result so far ✨
+
+> Tomorrow will be better.
